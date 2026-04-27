@@ -16,3 +16,8 @@ Note: This will impact Vite dev & build performances.
 ## Expanding the ESLint configuration
 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- 注文画面がスクロールの機能がない。
+- また全部売り切れ表示になっている。
+- 最初に飲み放題かの確認がない
+- 無料備品に値段がついている。
+- ボタンを押してからの遷移がとても重いのでそれを消す。
