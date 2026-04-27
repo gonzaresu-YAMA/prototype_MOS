@@ -102,7 +102,7 @@ export const mockApi = {
   },
 
   // 注文を送信（モック）
-  submitOrder: async (orderData) => {
+  submitOrder: async () => {
     await delay(500);
     return {
       success: true,
