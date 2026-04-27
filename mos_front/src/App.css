@@ -1,718 +1,200 @@
-/* ============================================ */
-/* MOSアプリ - モバイル用スタイル */
-/* ============================================ */
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  font-family: 'Hiragino Sans', 'ヒラギノ角ゴシック', 'Yu Gothic', 'メイリオ', sans-serif;
-  -webkit-font-smoothing: antialiased;
-}
-
-.app-container {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  width: 100%;
-  max-width: 480px;
-  margin: 0 auto;
-  background: #f5f5f5;
-  position: relative;
-}
-
-/* ============================================ */
-/* 共通：画面コンテナ */
-/* ============================================ */
-
-.screen {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  width: 100%;
-  background: white;
-}
-
-.screen-header {
-  padding: 20px;
-  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
-  color: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.screen-header h1,
-.screen-header h2 {
-  font-size: 28px;
-  font-weight: bold;
-  margin: 0;
-}
-
-.table-info {
-  font-size: 14px;
-  margin-top: 8px;
-  opacity: 0.9;
-}
-
-.screen-content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 20px;
-  -webkit-overflow-scrolling: touch;
-}
-
-.screen-footer {
-  padding: 16px;
-  border-top: 1px solid #e0e0e0;
-  display: flex;
-  gap: 12px;
-  background: white;
-}
-
-/* ============================================ */
-/* トップ画面 */
-/* ============================================ */
-
-.top-screen .screen-header h1 {
-  font-size: 32px;
-}
-
-.description {
-  text-align: center;
-  font-size: 18px;
-  color: #333;
-  margin-bottom: 30px;
-}
-
-.category-grid {
+.customer-root {
+  min-height: 100vh;
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-  margin-bottom: 30px;
+  place-items: center;
+  background: #d3d3d3;
 }
 
-.category-card {
-  background: white;
-  border: 2px solid #e0e0e0;
-  border-radius: 12px;
-  padding: 24px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  font-size: 16px;
-  font-weight: 600;
-  color: #333;
+.phone-frame {
+  position: relative;
+  width: min(100vw, 412px);
+  aspect-ratio: 412 / 915;
+  overflow: hidden;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
 }
 
-.category-card:active {
-  transform: scale(0.98);
-  border-color: #ff6b35;
-  background: #fff5f0;
-}
-
-.category-icon {
-  font-size: 48px;
-  line-height: 1;
-}
-
-.category-name {
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.help-text {
-  text-align: center;
-  font-size: 14px;
-  color: #666;
-  margin-bottom: 12px;
-}
-
-.call-button {
+.screen-image {
   width: 100%;
-  padding: 16px;
-  font-size: 18px;
-  font-weight: 600;
-  background: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.call-button:active {
-  background: #388E3C;
-}
-
-/* ============================================ */
-/* 商品一覧画面 */
-/* ============================================ */
-
-.back-button {
-  background: rgba(255, 255, 255, 0.3);
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-size: 16px;
-  cursor: pointer;
-  margin-bottom: 12px;
-  transition: background 0.2s;
-}
-
-.back-button:active {
-  background: rgba(255, 255, 255, 0.5);
-}
-
-.back-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.product-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.product-card {
-  background: white;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 12px;
-  display: flex;
-  gap: 12px;
-  cursor: pointer;
-  transition: all 0.2s;
-  text-align: left;
-  align-items: flex-start;
-  border: none;
-}
-
-.product-card:active {
-  background: #f5f5f5;
-  transform: scale(0.98);
-}
-
-.product-image {
-  font-size: 40px;
-  line-height: 1;
-  min-width: 50px;
-  text-align: center;
-}
-
-.product-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.product-info h4 {
-  font-size: 16px;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 4px;
-}
-
-.product-info p {
-  font-size: 13px;
-  color: #666;
-}
-
-.price {
-  font-size: 16px !important;
-  color: #ff6b35 !important;
-  font-weight: 700 !important;
-  margin-top: 6px;
-}
-
-.empty-message {
-  text-align: center;
-  font-size: 16px;
-  color: #999;
-  padding: 40px 20px;
-}
-
-/* ============================================ */
-/* 商品詳細画面 */
-/* ============================================ */
-
-.product-detail-screen .screen-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.product-detail-screen .screen-header h2 {
-  flex: 1;
-}
-
-.product-detail {
-  text-align: center;
-}
-
-.product-image-large {
-  font-size: 100px;
-  margin: 30px 0;
-  line-height: 1;
-}
-
-.product-detail h3 {
-  font-size: 24px;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 12px;
-}
-
-.product-description {
-  font-size: 14px;
-  color: #666;
-  margin-bottom: 16px;
-}
-
-.product-price {
-  font-size: 32px;
-  color: #ff6b35;
-  font-weight: bold;
-  margin-bottom: 30px;
-}
-
-.quantity-selector {
-  background: #f5f5f5;
-  padding: 20px;
-  border-radius: 8px;
-  margin: 20px 0;
-}
-
-.quantity-selector label {
-  display: block;
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 12px;
-}
-
-.quantity-controls {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-}
-
-.qty-btn {
-  width: 44px;
-  height: 44px;
-  border: 2px solid #ff6b35;
-  background: white;
-  color: #ff6b35;
-  font-size: 20px;
-  font-weight: bold;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.qty-btn:active {
-  background: #ff6b35;
-  color: white;
-}
-
-.qty-input {
-  width: 60px;
-  height: 44px;
-  border: 2px solid #ddd;
-  border-radius: 6px;
-  font-size: 18px;
-  text-align: center;
-  font-weight: bold;
-}
-
-.qty-btn-mini {
-  width: 28px;
-  height: 28px;
-  border: 1px solid #ddd;
-  background: #f5f5f5;
-  font-size: 14px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.qty-btn-mini:active {
-  background: #ff6b35;
-  color: white;
-  border-color: #ff6b35;
-}
-
-.qty-display {
-  min-width: 30px;
-  text-align: center;
-  font-weight: bold;
-}
-
-/* ============================================ */
-/* カート確認画面 */
-/* ============================================ */
-
-.cart-screen .screen-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.cart-screen .screen-header h2 {
-  flex: 1;
-}
-
-.cart-items {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 20px;
-}
-
-.cart-item {
-  background: #f9f9f9;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 12px;
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.item-image {
-  font-size: 36px;
-  min-width: 50px;
-  text-align: center;
-  line-height: 1;
-}
-
-.item-details {
-  flex: 1;
-}
-
-.item-details h4 {
-  font-size: 14px;
-  font-weight: 600;
-  color: #333;
-}
-
-.item-price {
-  font-size: 13px;
-  color: #666;
-}
-
-.item-controls {
-  display: flex;
-  gap: 8px;
-}
-
-.quantity-controls-mini {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.item-total {
-  font-size: 14px;
-  font-weight: bold;
-  color: #ff6b35;
-  min-width: 70px;
-  text-align: right;
-}
-
-.remove-button {
-  background: #f5f5f5;
-  border: none;
-  color: #999;
-  font-size: 16px;
-  width: 28px;
-  height: 28px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.remove-button:active {
-  background: #e0e0e0;
-  color: #333;
-}
-
-.empty-cart {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
   height: 100%;
-  gap: 20px;
+  object-fit: cover;
+  display: block;
 }
 
-.empty-icon {
-  font-size: 64px;
+.hotspot {
+  position: absolute;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.hotspot:focus-visible {
+  outline: 2px solid #ff3b30;
+  outline-offset: 2px;
+}
+
+.start-order {
+  left: 17%;
+  top: 65%;
+  width: 66%;
+  height: 12.5%;
+  border-radius: 70px;
+}
+
+.top-history {
+  left: 24.2%;
+  top: 3.2%;
+  width: 14.8%;
+  height: 6.8%;
+  border-radius: 999px;
+}
+
+.top-supplies {
+  left: 47.8%;
+  top: 3.2%;
+  width: 14.8%;
+  height: 6.8%;
+  border-radius: 999px;
+}
+
+.top-reserve {
+  left: 71.5%;
+  top: 3.2%;
+  width: 20%;
+  height: 6.8%;
+  border-radius: 999px;
+}
+
+.bottom-left {
+  left: 7.6%;
+  bottom: 1.5%;
+  width: 28.5%;
+  height: 5.8%;
+  border-radius: 999px;
+}
+
+.bottom-send {
+  left: 39%;
+  bottom: 1.5%;
+  width: 22.8%;
+  height: 5.8%;
+  border-radius: 999px;
+}
+
+.bottom-call {
+  left: 65%;
+  bottom: 1.5%;
+  width: 28.5%;
+  height: 5.8%;
+  border-radius: 999px;
+}
+
+.card-yakitori {
+  left: 6.5%;
+  top: 18.8%;
+  width: 39%;
+  height: 17.8%;
+  border-radius: 20px;
+}
+
+.card-supplies {
+  left: 55.2%;
+  top: 18.8%;
+  width: 39%;
+  height: 17.8%;
+  border-radius: 20px;
+}
+
+.card-drink {
+  left: 6.5%;
+  top: 56.2%;
+  width: 39%;
+  height: 17.8%;
+  border-radius: 20px;
+}
+
+.badge {
+  position: absolute;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+  background: #c8211f;
+}
+
+.badge.reserve {
+  top: 2.1%;
+  right: 8.9%;
+}
+
+.badge.send {
+  bottom: 5.9%;
+  left: 57.5%;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(209, 209, 209, 0.7);
+  display: grid;
+  place-items: center;
+}
+
+.modal-card {
+  width: 87%;
+  border-radius: 10px;
+  background: #f2f2f2;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.22);
+  padding: 28px 32px;
+}
+
+.modal-title {
+  font-size: 46px;
+  line-height: 1.2;
+  margin: 0;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.modal-actions {
+  margin-top: 34px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+}
+
+.modal-btn {
+  border: 1px solid #8e8e8e;
+  border-radius: 9px;
+  padding: 10px 18px;
+  min-width: 96px;
+  font-size: 35px;
   line-height: 1;
-  opacity: 0.5;
-}
-
-.cart-summary {
-  background: #f5f5f5;
-  padding: 16px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-}
-
-.summary-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 14px;
-  padding: 8px 0;
-  color: #666;
-}
-
-.summary-row.total {
-  font-size: 18px;
-  font-weight: bold;
-  color: #333;
-  border-top: 1px solid #ddd;
-  padding-top: 12px;
-  margin-top: 12px;
-}
-
-/* ============================================ */
-/* 注文完了画面 */
-/* ============================================ */
-
-.order-complete-screen .screen-content {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 20px;
-}
-
-.completion-container {
-  text-align: center;
-  width: 100%;
-}
-
-.success-icon {
-  font-size: 80px;
-  margin-bottom: 20px;
-  animation: scaleIn 0.4s ease-out;
-}
-
-@keyframes scaleIn {
-  from {
-    transform: scale(0);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-.completion-container h3 {
-  font-size: 24px;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 20px;
-}
-
-.order-summary {
-  background: #f9f9f9;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 20px;
-  text-align: left;
-}
-
-.order-id {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 16px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-.order-id span {
-  font-size: 14px;
-}
-
-.id-value {
-  font-weight: bold;
-  color: #ff6b35;
-  font-family: 'Courier New', monospace;
-}
-
-.order-items {
-  margin-bottom: 16px;
-}
-
-.order-items h4 {
-  font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 8px;
-  color: #333;
-}
-
-.order-item {
-  display: flex;
-  justify-content: space-between;
-  font-size: 13px;
-  padding: 6px 0;
-  color: #666;
-}
-
-.order-total {
-  display: flex;
-  justify-content: space-between;
-  font-size: 16px;
-  font-weight: bold;
-  padding-top: 12px;
-  border-top: 1px solid #ddd;
-  color: #333;
-}
-
-.order-time {
-  font-size: 12px;
-  color: #999;
-  margin-top: 12px;
-}
-
-.completion-message {
-  background: #e8f5e9;
-  border: 1px solid #81c784;
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 20px;
-}
-
-.completion-message p {
-  font-size: 14px;
-  color: #2e7d32;
-  margin: 4px 0;
-}
-
-.countdown {
-  font-size: 13px;
-  color: #999;
-  margin-top: 16px;
-}
-
-/* ============================================ */
-/* ボタン共通 */
-/* ============================================ */
-
-.primary-button,
-.secondary-button,
-.cancel-button {
-  padding: 16px 20px;
-  border-radius: 8px;
-  border: none;
-  font-size: 16px;
-  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
-  flex: 1;
 }
 
-.primary-button {
-  background: #ff6b35;
-  color: white;
+.modal-btn.cancel {
+  background: #d9d9d9;
+  color: #222;
 }
 
-.primary-button:active {
-  background: #e55a24;
+.modal-btn.confirm {
+  background: #2e2e2e;
+  color: #fff;
+  border-color: #2e2e2e;
 }
 
-.primary-button:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-}
-
-.secondary-button {
-  background: #f5f5f5;
-  color: #333;
-  border: 1px solid #ddd;
-}
-
-.secondary-button:active {
-  background: #e8e8e8;
-}
-
-.secondary-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.cancel-button {
-  background: white;
-  color: #333;
-  border: 1px solid #ddd;
-}
-
-.cancel-button:active {
-  background: #f5f5f5;
-}
-
-/* ============================================ */
-/* フローティングカートボタン */
-/* ============================================ */
-
-.floating-cart-button {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-  max-width: 440px;
-  width: calc(100% - 40px);
-}
-
-.floating-button {
-  width: 100%;
-  padding: 14px 16px;
-  background: #ff6b35;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
-  transition: all 0.2s;
-}
-
-.floating-button:active {
-  background: #e55a24;
-  transform: scale(0.98);
-}
-
-.floating-button:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-/* ============================================ */
-/* レスポンシブ */
-/* ============================================ */
-
-@media (max-width: 480px) {
-  .app-container {
-    max-width: 100%;
+@media (max-width: 412px) {
+  .modal-title {
+    font-size: 11.2vw;
   }
 
-  .screen {
-    max-width: 100%;
-  }
-
-  .category-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .modal-btn {
+    font-size: 8.5vw;
+    min-width: 23vw;
+    padding: 8px 12px;
   }
 }

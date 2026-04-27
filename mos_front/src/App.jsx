@@ -1,167 +1,143 @@
-import { useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import './App.css';
-import { TopScreen } from './components/TopScreen';
-import { ProductListScreen } from './components/ProductListScreen';
-import { CartConfirmScreen } from './components/CartConfirmScreen';
-import { OrderCompleteScreen } from './components/OrderCompleteScreen';
-import { useOrderState } from './hooks/useOrderState';
-import { mockApi } from './api/mockData';
 
 function App() {
-  // 画面状態管理
-  const [currentScreen, setCurrentScreen] = useState('top'); // top, products, cart, complete
-  const [categories, setCategories] = useState([]);
-  const [products, setProducts] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [screen, setScreen] = useState('start');
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [orderReserveCount] = useState(0);
+  const [sendCount] = useState(0);
 
-  // QRコードから取得したテーブルIDと店舗ID（本来ならQRから自動取得）
-  const tableId = '5'; // テスト用
-  const storeId = '1';
-
-  // 注文状態管理
-  const {
-    cart,
-    addToCart,
-    removeFromCart,
-    updateCartQuantity,
-    totalPrice,
-    submitOrder,
-    currentOrder,
-  } = useOrderState();
-
-  // 初期化：カテゴリを取得
-  useEffect(() => {
-    const loadCategories = async () => {
-      try {
-        setIsLoading(true);
-        const data = await mockApi.getCategories();
-        setCategories(data);
-      } catch (error) {
-        console.error('カテゴリ取得エラー:', error);
-      } finally {
-        setIsLoading(false);
-      }
+  const screenImage = useMemo(() => {
+    const map = {
+      start: '/customer/始まり画面.png',
+      home: '/customer/注文画面.png',
+      yakitori: '/customer/焼き鳥.png',
+      supplies: '/customer/無料備品画面.png',
+      drink: '/customer/ドリンク.png',
+      cart: '/customer/カート.png',
+      history: '/customer/注文履歴.png',
     };
-    loadCategories();
-  }, []);
+    return map[screen];
+  }, [screen]);
 
-  // カテゴリを選択したときの処理
-  const handleSelectCategory = async (categoryId) => {
-    try {
-      setIsLoading(true);
-      const category = categories.find((c) => c.id === categoryId);
-      setSelectedCategory(category);
-      const data = await mockApi.getProductsByCategory(categoryId);
-      setProducts(data);
-      setCurrentScreen('products');
-    } catch (error) {
-      console.error('商品取得エラー:', error);
-    } finally {
-      setIsLoading(false);
+  const goHome = () => {
+    if (screen === 'home') {
+      setShowResetModal(true);
+      return;
     }
-  };
-
-  // トップ画面に戻る
-  const handleBackToTop = () => {
-    setCurrentScreen('top');
-    setProducts([]);
-    setSelectedCategory(null);
-  };
-
-  // 注文確認画面に進む
-  const handleGoToCart = () => {
-    setCurrentScreen('cart');
-  };
-
-  // 注文を送信
-  const handleSubmitOrder = async () => {
-    try {
-      setIsLoading(true);
-      const response = await mockApi.submitOrder({ items: cart });
-      if (response.success) {
-        submitOrder(response.orderId);
-        setCurrentScreen('complete');
-      } else {
-        alert('注文の送信に失敗しました');
-      }
-    } catch (error) {
-      console.error('注文送信エラー:', error);
-      alert('注文の送信に失敗しました');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // 注文完了後、メニューに戻る
-  const handleReturnToMenu = () => {
-    handleBackToTop();
+    setScreen('home');
   };
 
   return (
-    <div className="app-container">
-      {currentScreen === 'top' && (
-        <TopScreen
-          categories={categories}
-          onSelectCategory={handleSelectCategory}
-          tableId={tableId}
-          storeId={storeId}
-        />
-      )}
+    <main className="customer-root">
+      <section className="phone-frame" aria-label="顧客画面">
+        <img className="screen-image" src={screenImage} alt="顧客画面プロトタイプ" />
 
-      {currentScreen === 'products' && (
-        <ProductListScreen
-          category={selectedCategory}
-          products={products}
-          onBack={handleBackToTop}
-          onAddToCart={addToCart}
-        />
-      )}
-
-      {currentScreen === 'cart' && (
-        <>
-          <CartConfirmScreen
-            cart={cart}
-            totalPrice={totalPrice}
-            onBack={() => setCurrentScreen('products')}
-            onUpdateQuantity={updateCartQuantity}
-            onRemoveItem={removeFromCart}
-            onSubmit={handleSubmitOrder}
-            isLoading={isLoading}
-          />
-          {cart.length > 0 && (
-            <div className="floating-cart-button">
-              <button
-                className="floating-button"
-                onClick={handleGoToCart}
-                disabled={cart.length === 0}
-              >
-                🛒 {cart.length} 件 - ¥{totalPrice.toLocaleString()}
-              </button>
-            </div>
-          )}
-        </>
-      )}
-
-      {currentScreen === 'complete' && (
-        <OrderCompleteScreen
-          order={currentOrder}
-          onReturnToMenu={handleReturnToMenu}
-        />
-      )}
-
-      {/* フローティングカートボタン（products画面用） */}
-      {currentScreen === 'products' && cart.length > 0 && (
-        <div className="floating-cart-button">
+        {screen === 'start' && (
           <button
-            className="floating-button"
-            onClick={handleGoToCart}
-          >
-            🛒 {cart.length} 件 - ¥{totalPrice.toLocaleString()}
-          </button>
-        </div>
-      )}
-    </div>
+            type="button"
+            className="hotspot start-order"
+            onClick={() => setScreen('home')}
+            aria-label="注文を始める"
+          />
+        )}
+
+        {screen !== 'start' && (
+          <>
+            <button
+              type="button"
+              className="hotspot top-history"
+              onClick={() => setScreen('history')}
+              aria-label="注文履歴"
+            />
+            <button
+              type="button"
+              className="hotspot top-supplies"
+              onClick={() => setScreen('supplies')}
+              aria-label="無料備品"
+            />
+            <button
+              type="button"
+              className="hotspot top-reserve"
+              onClick={() => window.alert('注文保留はプロトタイプでは未実装です。')}
+              aria-label="注文保留"
+            />
+
+            <button
+              type="button"
+              className="hotspot bottom-left"
+              onClick={goHome}
+              aria-label={screen === 'home' ? 'お会計' : 'ホームへ'}
+            />
+            <button
+              type="button"
+              className="hotspot bottom-send"
+              onClick={() => setScreen('cart')}
+              aria-label="注文送信"
+            />
+            <button
+              type="button"
+              className="hotspot bottom-call"
+              onClick={() => window.alert('店員を呼び出しました。')}
+              aria-label="店員呼び出し"
+            />
+
+            {screen === 'home' && (
+              <>
+                <button
+                  type="button"
+                  className="hotspot card-yakitori"
+                  onClick={() => setScreen('yakitori')}
+                  aria-label="焼き鳥"
+                />
+                <button
+                  type="button"
+                  className="hotspot card-supplies"
+                  onClick={() => setScreen('supplies')}
+                  aria-label="無料備品"
+                />
+                <button
+                  type="button"
+                  className="hotspot card-drink"
+                  onClick={() => setScreen('drink')}
+                  aria-label="ドリンク"
+                />
+              </>
+            )}
+
+            {orderReserveCount > 0 && <span className="badge reserve">{orderReserveCount}</span>}
+            {sendCount >= 0 && <span className="badge send">{sendCount}</span>}
+          </>
+        )}
+
+        {showResetModal && (
+          <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label="初めに戻る確認">
+            <div className="modal-card">
+              <p className="modal-title">初めに戻りますか？</p>
+              <div className="modal-actions">
+                <button
+                  type="button"
+                  className="modal-btn cancel"
+                  onClick={() => setShowResetModal(false)}
+                >
+                  うん
+                </button>
+                <button
+                  type="button"
+                  className="modal-btn confirm"
+                  onClick={() => {
+                    setShowResetModal(false);
+                    setScreen('start');
+                  }}
+                >
+                  うんうん
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </section>
+    </main>
   );
 }
 
