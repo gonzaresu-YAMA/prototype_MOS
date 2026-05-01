@@ -7,11 +7,8 @@ export function CheckoutScreen({
   cart,
   cartTotal,
   onBack,
+  onSubmit,
 }) {
-  const handleCallStaff = () => {
-    alert('スタッフにお呼びください。\n会計金額：¥' + cartTotal.toLocaleString());
-    onBack();
-  };
 
   return (
     <section className="screen checkout-screen">
@@ -68,8 +65,13 @@ export function CheckoutScreen({
 
             <p className="card-kicker" style={{ marginTop: '24px' }}>支払い方法</p>
             <div className="choice-row" style={{ marginTop: '12px' }}>
-              <button type="button" className="choice-button primary" onClick={handleCallStaff}>
-                スタッフを呼ぶ
+              <button
+                type="button"
+                className="choice-button primary"
+                onClick={onSubmit}
+                disabled={cart.length === 0}
+              >
+                会計を依頼する
               </button>
             </div>
           </div>

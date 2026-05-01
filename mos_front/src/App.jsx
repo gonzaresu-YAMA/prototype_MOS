@@ -9,6 +9,7 @@ import { CategoryScreen } from './screens/CategoryScreen';
 import { CartScreen } from './screens/CartScreen';
 import { HistoryScreen } from './screens/HistoryScreen';
 import { CheckoutScreen } from './screens/CheckoutScreen';
+import { CheckoutCompleteScreen } from './screens/CheckoutCompleteScreen';
 import { CompleteScreen } from './screens/CompleteScreen';
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
   const [tableId, setTableId] = useState(null);
   const [drinkTimeStart, setDrinkTimeStart] = useState(null);
   const [drinkTimeEnd, setDrinkTimeEnd] = useState(null);
+  const [checkoutTotal, setCheckoutTotal] = useState(0);
 
   useEffect(() => {
     if (screen !== 'complete') {
@@ -88,6 +90,26 @@ function App() {
     setDrinkTimeStart(times.start);
     setDrinkTimeEnd(times.end);
     setScreen('home');
+  };
+
+  const submitCheckout = () => {
+    setCheckoutTotal(cartTotal);
+    setCart([]);
+    setHistory([]);
+    setScreen('checkoutComplete');
+  };
+
+  const resetDemo = () => {
+    setScreen('qr');
+    setDrinkPlan(null);
+    setSelectedCategory('yakitori');
+    setCart([]);
+    setHistory([]);
+    setLastOrder(null);
+    setTableId(null);
+    setDrinkTimeStart(null);
+    setDrinkTimeEnd(null);
+    setCheckoutTotal(0);
   };
 
   return (
@@ -166,6 +188,14 @@ function App() {
             cart={cart}
             cartTotal={cartTotal}
             onBack={() => setScreen('home')}
+            onSubmit={submitCheckout}
+          />
+        )}
+        {screen === 'checkoutComplete' && (
+          <CheckoutCompleteScreen
+            tableId={tableId}
+            totalPrice={checkoutTotal}
+            onRestart={resetDemo}
           />
         )}
         {screen === 'complete' && <CompleteScreen lastOrder={lastOrder} />}

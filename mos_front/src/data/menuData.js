@@ -41,7 +41,7 @@ export const menuItems = {
       price: 320,
       status: '販売中',
       image:
-        'https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?auto=format&fit=crop&w=900&q=80',
+        './images/negima.jpg',
       description: '香ばしい鶏肉とねぎの定番串',
     },
     {
@@ -50,7 +50,7 @@ export const menuItems = {
       price: 360,
       status: '販売中',
       image:
-        'https://images.unsplash.com/photo-1603360946369-dc9bb6258143?auto=format&fit=crop&w=900&q=80',
+        './images/tsukune.jpg',
       description: 'ふっくら食感でたれがよく絡む人気串',
     },
     {
@@ -59,7 +59,7 @@ export const menuItems = {
       price: 280,
       status: '販売中',
       image:
-        'https://images.unsplash.com/photo-1564834744159-ff0ea41ba4b7?auto=format&fit=crop&w=900&q=80',
+        './images/kawa.jpg',
       description: '外は香ばしく中はジューシー',
     },
   ],
@@ -70,7 +70,7 @@ export const menuItems = {
       price: 580,
       status: '販売中',
       image:
-        'https://images.unsplash.com/photo-1558640476-4370f6d6e1d9?auto=format&fit=crop&w=900&q=80',
+        './images/beer.jpg',
       description: 'キレのある定番ビール',
     },
     {
@@ -79,7 +79,7 @@ export const menuItems = {
       price: 520,
       status: '販売中',
       image:
-        'https://images.unsplash.com/photo-1514361892635-eae31f9d1b54?auto=format&fit=crop&w=900&q=80',
+        './images/highball.jpg',
       description: 'すっきり飲みやすい一杯',
     },
     {
@@ -88,7 +88,7 @@ export const menuItems = {
       price: 280,
       status: '販売中',
       image:
-        'https://images.unsplash.com/photo-1517701550927-30cf4ba1b47f?auto=format&fit=crop&w=900&q=80',
+        './images/oolong_tea.jpg',
       description: '食事に合わせやすいノンアル',
     },
   ],
