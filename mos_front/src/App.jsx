@@ -154,13 +154,33 @@ function createOrderId() {
   return `ORD-${Date.now()}`;
 }
 
+function calculateDrinkTimes(durationHours) {
+  const now = new Date();
+  const startHour = now.getHours();
+  const startMinute = now.getMinutes();
+  const endHour = (startHour + durationHours) % 24;
+  
+  const formatTime = (hour, minute) => {
+    return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+  };
+  
+  return {
+    start: formatTime(startHour, startMinute),
+    end: formatTime(endHour, startMinute)
+  };
+}
+
 function App() {
-  const [screen, setScreen] = useState('welcome');
+  const [screen, setScreen] = useState('qr');
   const [drinkPlan, setDrinkPlan] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('yakitori');
   const [cart, setCart] = useState([]);
   const [history, setHistory] = useState([]);
   const [lastOrder, setLastOrder] = useState(null);
+  const [tableId, setTableId] = useState(null);
+  const [drinkTimeStart, setDrinkTimeStart] = useState(null);
+  const [drinkTimeEnd, setDrinkTimeEnd] = useState(null);
+  const [drinkDurationHours, setDrinkDurationHours] = useState(null);
 
   useEffect(() => {
     if (screen !== 'complete') {
@@ -228,8 +248,8 @@ function App() {
     setScreen('category');
   };
 
-  const renderWelcome = () => (
-    <section className="screen welcome-screen">
+  const renderQRScreen = () => (
+    <section className="screen qr-screen">
       <div className="hero-banner">
         <img
           src="https://images.unsplash.com/photo-1526318896980-cf78c088247c?auto=format&fit=crop&w=1200&q=80"
@@ -238,17 +258,17 @@ function App() {
         <div className="hero-overlay" />
         <div className="hero-copy">
           <p className="eyebrow">Customer Order</p>
-          <h1>まず飲み放題の確認をしてください</h1>
-          <p>そのあとにメニューへ進むシンプルな注文画面です。</p>
+          <h1>QRコードを読み取ってください</h1>
+          <p>卓番と来店情報が確認できます。</p>
         </div>
       </div>
 
       <div className="screen-body">
         <div className="prompt-card">
           <div>
-            <p className="card-kicker">最初の確認</p>
-            <h2>飲み放題ですか？</h2>
-            <p>先に選んでもらうことで、ドリンク画面の案内を分かりやすくします。</p>
+            <p className="card-kicker">QRコード読み取り</p>
+            <h2>テーブル情報の確認</h2>
+            <p>QRコードを読み取ると、卓番と飲み放題プランの確認画面に進みます。</p>
           </div>
 
           <div className="choice-row">
@@ -256,27 +276,117 @@ function App() {
               type="button"
               className="choice-button primary"
               onClick={() => {
-                setDrinkPlan('all');
-                setScreen('home');
+                // プロトタイプなので固定値を使用
+                setTableId(1);
+                setScreen('welcome');
               }}
             >
-              はい、飲み放題です
-            </button>
-            <button
-              type="button"
-              className="choice-button secondary"
-              onClick={() => {
-                setDrinkPlan('none');
-                setScreen('home');
-              }}
-            >
-              いいえ、都度注文です
+            QRコードを読み取る
             </button>
           </div>
         </div>
       </div>
     </section>
   );
+
+  const renderWelcome = () => {
+    const hasSelectedDuration = drinkDurationHours !== null;
+    
+    return (
+      <section className="screen welcome-screen">
+        <div className="hero-banner">
+          <img
+            src="https://images.unsplash.com/photo-1526318896980-cf78c088247c?auto=format&fit=crop&w=1200&q=80"
+            alt="居酒屋の雰囲気"
+          />
+          <div className="hero-overlay" />
+          <div className="hero-copy">
+            <p className="eyebrow">Customer Order</p>
+            <h1>{hasSelectedDuration ? 'プランを選択してください' : '飲み放題時間を選択'}</h1>
+            <p>{hasSelectedDuration ? '飲み放題プランをお選びください' : '飲み放題の時間をご選択ください'}</p>
+          </div>
+        </div>
+
+        <div className="screen-body">
+          <div className="prompt-card">
+            <div>
+              <p className="card-kicker">テーブル情報</p>
+              <h2>卓番：{tableId}</h2>
+              
+              {!hasSelectedDuration ? (
+                <>
+                  <hr style={{ margin: '16px 0', border: 'none', borderTop: '1px solid #e0e0e0' }} />
+                  <p className="card-kicker" style={{ marginTop: '16px' }}>飲み放題時間選択</p>
+                  <h3 style={{ marginTop: '8px' }}>いつまで飲み放題ですか？</h3>
+                  <p>開始時刻からの時間をお選びください</p>
+                  
+                  <div className="choice-row">
+                    <button
+                      type="button"
+                      className="choice-button primary"
+                      onClick={() => {
+                        setDrinkDurationHours(2);
+                        const times = calculateDrinkTimes(2);
+                        setDrinkTimeStart(times.start);
+                        setDrinkTimeEnd(times.end);
+                      }}
+                    >
+                    2時間
+                    </button>
+                    <button
+                      type="button"
+                      className="choice-button primary"
+                      onClick={() => {
+                        setDrinkDurationHours(3);
+                        const times = calculateDrinkTimes(3);
+                        setDrinkTimeStart(times.start);
+                        setDrinkTimeEnd(times.end);
+                      }}
+                    >
+                    3時間
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {drinkTimeStart && drinkTimeEnd && (
+                    <p className="table-info-detail">飲み放題時間：{drinkTimeStart} ～ {drinkTimeEnd}</p>
+                  )}
+                  <hr style={{ margin: '16px 0', border: 'none', borderTop: '1px solid #e0e0e0' }} />
+                  <p className="card-kicker" style={{ marginTop: '16px' }}>飲み放題プラン</p>
+                  <h3 style={{ marginTop: '8px' }}>どちらのプランですか？</h3>
+                  <p>先に選んでもらうことで、ドリンク画面の案内を分かりやすくします。</p>
+                  
+                  <div className="choice-row">
+                    <button
+                      type="button"
+                      className="choice-button primary"
+                      onClick={() => {
+                        setDrinkPlan('all');
+                        setScreen('home');
+                      }}
+                    >
+                      ✓ はい、飲み放題です
+                    </button>
+                    <button
+                      type="button"
+                      className="choice-button secondary"
+                      onClick={() => {
+                        setDrinkPlan('none');
+                        setScreen('home');
+                      }}
+                    >
+                      ✕ いいえ、都度注文です
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  };
 
   const renderHome = () => (
     <section className="screen home-screen">
@@ -285,10 +395,22 @@ function App() {
           <p className="eyebrow">Midori-tei</p>
           <h2>注文画面</h2>
         </div>
+        <button
+          type="button"
+          className="checkout-button"
+          onClick={() => setScreen('checkout')}
+        >
+          💳 会計
+        </button>
         <div className="status-stack">
           <span className={`status-pill ${drinkPlan === 'all' ? 'accent' : 'muted'}`}>
             {drinkPlan === 'all' ? '飲み放題あり' : '飲み放題なし'}
           </span>
+          {drinkPlan === 'all' && drinkTimeStart && drinkTimeEnd && (
+            <span className="status-pill accent">
+              時間：{drinkTimeStart} ～ {drinkTimeEnd}
+            </span>
+          )}
           <span className="status-pill muted">売り切れなし</span>
         </div>
       </header>
@@ -551,6 +673,84 @@ function App() {
     </section>
   );
 
+  const renderCheckout = () => (
+    <section className="screen checkout-screen">
+      <header className="screen-header sticky">
+        <button type="button" className="text-button" onClick={() => setScreen('home')}>
+          ← 戻る
+        </button>
+        <div>
+          <p className="eyebrow">Checkout</p>
+          <h2>会計</h2>
+        </div>
+        <span className="status-pill muted">確認中</span>
+      </header>
+
+      <div className="screen-body scrollable">
+        <div className="checkout-card">
+          <div>
+            <p className="card-kicker">テーブル情報</p>
+            <h3>卓番：{tableId}</h3>
+            {drinkTimeStart && drinkTimeEnd && (
+              <p className="table-info-detail">飲み放題時間：{drinkTimeStart} ～ {drinkTimeEnd}</p>
+            )}
+            
+            <div style={{ marginTop: '24px' }}>
+              <p className="card-kicker">注文内容</p>
+              {cart.length === 0 ? (
+                <p>カートに商品がありません</p>
+              ) : (
+                <div className="cart-list" style={{ marginTop: '12px' }}>
+                  {cart.map((item) => (
+                    <div key={item.id} className="history-line">
+                      <span>{item.name} × {item.quantity}</span>
+                      <span>{formatPrice(item.price * item.quantity)}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="summary-card" style={{ marginTop: '24px' }}>
+              <div className="summary-row">
+                <span>小計</span>
+                <strong>¥{cartTotal.toLocaleString()}</strong>
+              </div>
+              <div className="summary-row total">
+                <span>合計</span>
+                <strong>¥{cartTotal.toLocaleString()}</strong>
+              </div>
+            </div>
+
+            <p className="card-kicker" style={{ marginTop: '24px' }}>支払い方法</p>
+            <div className="choice-row" style={{ marginTop: '12px' }}>
+              <button
+                type="button"
+                className="choice-button primary"
+                onClick={() => {
+                  // プロトタイプなので確認画面として表示
+                  alert('スタッフにお呼びください。\n会計金額：¥' + cartTotal.toLocaleString());
+                  setScreen('home');
+                }}
+              >
+                スタッフを呼ぶ
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer className="screen-footer sticky">
+        <button type="button" className="footer-button ghost" onClick={() => setScreen('home')}>
+          キャンセル
+        </button>
+        <button type="button" className="footer-button primary" onClick={() => setScreen('home')}>
+          OK
+        </button>
+      </footer>
+    </section>
+  );
+
   const renderComplete = () => (
     <section className="screen complete-screen">
       <div className="screen-body complete-body">
@@ -586,11 +786,13 @@ function App() {
   return (
     <main className="customer-root">
       <section className="app-shell" aria-label="顧客注文画面">
+        {screen === 'qr' && renderQRScreen()}
         {screen === 'welcome' && renderWelcome()}
         {screen === 'home' && renderHome()}
         {screen === 'category' && renderCategory()}
         {screen === 'cart' && renderCart()}
         {screen === 'history' && renderHistory()}
+        {screen === 'checkout' && renderCheckout()}
         {screen === 'complete' && renderComplete()}
       </section>
     </main>
