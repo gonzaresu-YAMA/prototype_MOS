@@ -180,7 +180,6 @@ function App() {
   const [tableId, setTableId] = useState(null);
   const [drinkTimeStart, setDrinkTimeStart] = useState(null);
   const [drinkTimeEnd, setDrinkTimeEnd] = useState(null);
-  const [drinkDurationHours, setDrinkDurationHours] = useState(null);
 
   useEffect(() => {
     if (screen !== 'complete') {
@@ -290,7 +289,7 @@ function App() {
   );
 
   const renderWelcome = () => {
-    const hasSelectedDuration = drinkDurationHours !== null;
+    const hasSelectedPlan = drinkPlan !== null;
     
     return (
       <section className="screen welcome-screen">
@@ -302,8 +301,8 @@ function App() {
           <div className="hero-overlay" />
           <div className="hero-copy">
             <p className="eyebrow">Customer Order</p>
-            <h1>{hasSelectedDuration ? 'プランを選択してください' : '飲み放題時間を選択'}</h1>
-            <p>{hasSelectedDuration ? '飲み放題プランをお選びください' : '飲み放題の時間をご選択ください'}</p>
+            <h1>{hasSelectedPlan ? '飲み放題時間を選択' : 'プランを選択してください'}</h1>
+            <p>{hasSelectedPlan ? '飲み放題の時間をご選択ください' : '飲み放題プランをお選びください'}</p>
           </div>
         </div>
 
@@ -313,45 +312,8 @@ function App() {
               <p className="card-kicker">テーブル情報</p>
               <h2>卓番：{tableId}</h2>
               
-              {!hasSelectedDuration ? (
+              {!hasSelectedPlan ? (
                 <>
-                  <hr style={{ margin: '16px 0', border: 'none', borderTop: '1px solid #e0e0e0' }} />
-                  <p className="card-kicker" style={{ marginTop: '16px' }}>飲み放題時間選択</p>
-                  <h3 style={{ marginTop: '8px' }}>いつまで飲み放題ですか？</h3>
-                  <p>開始時刻からの時間をお選びください</p>
-                  
-                  <div className="choice-row">
-                    <button
-                      type="button"
-                      className="choice-button primary"
-                      onClick={() => {
-                        setDrinkDurationHours(2);
-                        const times = calculateDrinkTimes(2);
-                        setDrinkTimeStart(times.start);
-                        setDrinkTimeEnd(times.end);
-                      }}
-                    >
-                    2時間
-                    </button>
-                    <button
-                      type="button"
-                      className="choice-button primary"
-                      onClick={() => {
-                        setDrinkDurationHours(3);
-                        const times = calculateDrinkTimes(3);
-                        setDrinkTimeStart(times.start);
-                        setDrinkTimeEnd(times.end);
-                      }}
-                    >
-                    3時間
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <>
-                  {drinkTimeStart && drinkTimeEnd && (
-                    <p className="table-info-detail">飲み放題時間：{drinkTimeStart} ～ {drinkTimeEnd}</p>
-                  )}
                   <hr style={{ margin: '16px 0', border: 'none', borderTop: '1px solid #e0e0e0' }} />
                   <p className="card-kicker" style={{ marginTop: '16px' }}>飲み放題プラン</p>
                   <h3 style={{ marginTop: '8px' }}>どちらのプランですか？</h3>
@@ -363,10 +325,9 @@ function App() {
                       className="choice-button primary"
                       onClick={() => {
                         setDrinkPlan('all');
-                        setScreen('home');
                       }}
                     >
-                      ✓ はい、飲み放題です
+                      はい、飲み放題です
                     </button>
                     <button
                       type="button"
@@ -376,7 +337,42 @@ function App() {
                         setScreen('home');
                       }}
                     >
-                      ✕ いいえ、都度注文です
+                      いいえ、都度注文です
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <p className="table-info-detail">選択プラン：{drinkPlan === 'all' ? '飲み放題' : '都度注文'}</p>
+                  <hr style={{ margin: '16px 0', border: 'none', borderTop: '1px solid #e0e0e0' }} />
+                  <p className="card-kicker" style={{ marginTop: '16px' }}>飲み放題時間選択</p>
+                  <h3 style={{ marginTop: '8px' }}>いつまで飲み放題ですか？</h3>
+                  <p>開始時刻からの時間をお選びください</p>
+                  
+                  <div className="choice-row">
+                    <button
+                      type="button"
+                      className="choice-button primary"
+                      onClick={() => {
+                        const times = calculateDrinkTimes(2);
+                        setDrinkTimeStart(times.start);
+                        setDrinkTimeEnd(times.end);
+                        setScreen('home');
+                      }}
+                    >
+                      2時間
+                    </button>
+                    <button
+                      type="button"
+                      className="choice-button primary"
+                      onClick={() => {
+                        const times = calculateDrinkTimes(3);
+                        setDrinkTimeStart(times.start);
+                        setDrinkTimeEnd(times.end);
+                        setScreen('home');
+                      }}
+                    >
+                      3時間
                     </button>
                   </div>
                 </>
@@ -400,7 +396,7 @@ function App() {
           className="checkout-button"
           onClick={() => setScreen('checkout')}
         >
-          💳 会計
+          会計
         </button>
         <div className="status-stack">
           <span className={`status-pill ${drinkPlan === 'all' ? 'accent' : 'muted'}`}>
@@ -755,7 +751,7 @@ function App() {
     <section className="screen complete-screen">
       <div className="screen-body complete-body">
         <div className="completion-card">
-          <div className="completion-mark">✓</div>
+          <div className="completion-mark">OK</div>
           <p className="card-kicker">Order Complete</p>
           <h2>注文を送信しました</h2>
           {lastOrder && (
