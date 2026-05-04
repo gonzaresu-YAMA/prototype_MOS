@@ -1,14 +1,16 @@
 import { formatPrice } from '../utils/helpers';
+import { QRScreen } from './QRScreen';
 
 export function CheckoutScreen({
   tableId,
   drinkTimeStart,
   drinkTimeEnd,
-  cart,
-  cartTotal,
+  drinkPlanPrice,
+  history,
   onBack,
   onSubmit,
 }) {
+  const foodTotal = history.reduce((sum, order) => sum + order.totalPrice, 0);
 
   return (
     <section className="screen checkout-screen">
@@ -36,30 +38,38 @@ export function CheckoutScreen({
 
             <div style={{ marginTop: '24px' }}>
               <p className="card-kicker">注文内容</p>
-              {cart.length === 0 ? (
-                <p>カートに商品がありません</p>
+              {history.length === 0 ? (
+                <p>注文履歴がありません</p>
               ) : (
                 <div className="cart-list" style={{ marginTop: '12px' }}>
-                  {cart.map((item) => (
-                    <div key={item.id} className="history-line">
-                      <span>
-                        {item.name} × {item.quantity}
-                      </span>
-                      <span>{formatPrice(item.price * item.quantity)}</span>
-                    </div>
-                  ))}
+                  {history.map((order) =>
+                    order.items.map((item) => (
+                      <div key={`${order.id}-${item.id}`} className="history-line">
+                        <span>
+                          {item.name} × {item.quantity}
+                        </span>
+                        <span>{formatPrice(item.price * item.quantity)}</span>
+                      </div>
+                    ))
+                  )}
                 </div>
               )}
             </div>
 
             <div className="summary-card" style={{ marginTop: '24px' }}>
               <div className="summary-row">
-                <span>小計</span>
-                <strong>¥{cartTotal.toLocaleString()}</strong>
+                <span>小計（フード・ドリンク）</span>
+                <strong>¥{foodTotal.toLocaleString()}</strong>
               </div>
+              {drinkPlanPrice > 0 && (
+                <div className="summary-row">
+                  <span>飲み放題料金</span>
+                  <strong>¥{drinkPlanPrice.toLocaleString()}</strong>
+                </div>
+              )}
               <div className="summary-row total">
                 <span>合計</span>
-                <strong>¥{cartTotal.toLocaleString()}</strong>
+                <strong>¥{(foodTotal + drinkPlanPrice).toLocaleString()}</strong>
               </div>
             </div>
 
@@ -69,7 +79,6 @@ export function CheckoutScreen({
                 type="button"
                 className="choice-button primary"
                 onClick={onSubmit}
-                disabled={cart.length === 0}
               >
                 会計を依頼する
               </button>
@@ -83,7 +92,7 @@ export function CheckoutScreen({
           キャンセル
         </button>
         <button type="button" className="footer-button primary" onClick={onBack}>
-          OK
+        メニューへ
         </button>
       </footer>
     </section>

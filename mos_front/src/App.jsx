@@ -22,7 +22,10 @@ function App() {
   const [tableId, setTableId] = useState(null);
   const [drinkTimeStart, setDrinkTimeStart] = useState(null);
   const [drinkTimeEnd, setDrinkTimeEnd] = useState(null);
+  const [drinkPlanPrice, setDrinkPlanPrice] = useState(0);
   const [checkoutTotal, setCheckoutTotal] = useState(0);
+
+  const DRINK_PLAN_PRICES = { 2: 1500, 3: 2000 };
 
   useEffect(() => {
     if (screen !== 'complete') {
@@ -46,15 +49,20 @@ function App() {
   const cartTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   const addToCart = (item) => {
+    const isDrink = selectedCategory === 'drinks';
+    const effectiveItem = (drinkPlan === 'all' && isDrink)
+      ? { ...item, price: 0 }
+      : item;
+
     setCart((currentCart) => {
-      const existing = currentCart.find((cartItem) => cartItem.id === item.id);
+      const existing = currentCart.find((cartItem) => cartItem.id === effectiveItem.id);
       if (existing) {
         return currentCart.map((cartItem) =>
-          cartItem.id === item.id ? { ...cartItem, quantity: cartItem.quantity + 1 } : cartItem
+          cartItem.id === effectiveItem.id ? { ...cartItem, quantity: cartItem.quantity + 1 } : cartItem
         );
       }
 
-      return [...currentCart, { ...item, quantity: 1 }];
+      return [...currentCart, { ...effectiveItem, quantity: 1 }];
     });
   };
 
@@ -89,14 +97,16 @@ function App() {
     const times = calculateDrinkTimes(hours);
     setDrinkTimeStart(times.start);
     setDrinkTimeEnd(times.end);
+    setDrinkPlanPrice(DRINK_PLAN_PRICES[hours] ?? 0);
     setScreen('home');
   };
 
   const submitCheckout = () => {
-    setCheckoutTotal(cartTotal);
+    const foodTotal = history.reduce((sum, order) => sum + order.totalPrice, 0);
+    setCheckoutTotal(foodTotal + drinkPlanPrice);
     setCart([]);
     setHistory([]);
-    setScreen('checkoutComplete');
+    setScreen('qr');
   };
 
   const resetDemo = () => {
@@ -109,6 +119,7 @@ function App() {
     setTableId(null);
     setDrinkTimeStart(null);
     setDrinkTimeEnd(null);
+    setDrinkPlanPrice(0);
     setCheckoutTotal(0);
   };
 
@@ -185,8 +196,8 @@ function App() {
             tableId={tableId}
             drinkTimeStart={drinkTimeStart}
             drinkTimeEnd={drinkTimeEnd}
-            cart={cart}
-            cartTotal={cartTotal}
+            drinkPlanPrice={drinkPlanPrice}
+            history={history}
             onBack={() => setScreen('home')}
             onSubmit={submitCheckout}
           />

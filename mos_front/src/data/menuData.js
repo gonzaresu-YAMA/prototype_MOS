@@ -40,8 +40,7 @@ export const menuItems = {
       name: 'ねぎま串',
       price: 320,
       status: '販売中',
-      image:
-        './images/negima.jpg',
+      image: '/menu_pictures/negima.jpg',
       description: '香ばしい鶏肉とねぎの定番串',
     },
     {
@@ -49,8 +48,7 @@ export const menuItems = {
       name: 'つくね串',
       price: 360,
       status: '販売中',
-      image:
-        './images/tsukune.jpg',
+      image: '/menu_pictures/tukune.jpg',
       description: 'ふっくら食感でたれがよく絡む人気串',
     },
     {
@@ -58,8 +56,7 @@ export const menuItems = {
       name: '皮串',
       price: 280,
       status: '販売中',
-      image:
-        './images/kawa.jpg',
+      image: '/menu_pictures/kawa.jpg',
       description: '外は香ばしく中はジューシー',
     },
   ],
@@ -69,8 +66,7 @@ export const menuItems = {
       name: '生ビール',
       price: 580,
       status: '販売中',
-      image:
-        './images/beer.jpg',
+      image: '/menu_pictures/beer.jpg',
       description: 'キレのある定番ビール',
     },
     {
@@ -78,8 +74,7 @@ export const menuItems = {
       name: 'ハイボール',
       price: 520,
       status: '販売中',
-      image:
-        './images/highball.jpg',
+      image: '/menu_pictures/highball.jpg',
       description: 'すっきり飲みやすい一杯',
     },
     {
@@ -87,8 +82,7 @@ export const menuItems = {
       name: '烏龍茶',
       price: 280,
       status: '販売中',
-      image:
-        './images/oolong_tea.jpg',
+      image: '/menu_pictures/oolong_tea.jpg',
       description: '食事に合わせやすいノンアル',
     },
   ],
