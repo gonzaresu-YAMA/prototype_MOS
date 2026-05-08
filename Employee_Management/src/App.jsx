@@ -238,6 +238,7 @@ function App() {
       setLoginError('IDとパスワードを入力してください。');
       return;
     }
+
     setEmployeeUser({ id: loginId.trim() });
     setLoginError('');
     setLoginPassword('');
@@ -253,25 +254,13 @@ function App() {
   };
 
   const renderLogin = () => (
-    <section className="screen welcome-screen">
-      <div className="hero-banner">
-        <img
-          src="https://images.unsplash.com/photo-1526318896980-cf78c088247c?auto=format&fit=crop&w=1200&q=80"
-          alt="居酒屋の雰囲気"
-        />
-        <div className="hero-overlay" />
-        <div className="hero-copy">
-          <p className="eyebrow">Staff Login</p>
-          <h1>従業員ログイン</h1>
-          <p>ID とパスワードを入力して、従業員ホームに進んでください。</p>
-        </div>
-      </div>
-
-      <div className="screen-body">
+    <section className="screen login-screen">
+      <div className="screen-body auth-shell">
         <div className="auth-card">
           <div>
-            <p className="card-kicker">従業員認証</p>
-            <h2>ログインしてください</h2>
+            <p className="card-kicker">従業員ログイン</p>
+            <h2>ID とパスワードでログイン</h2>
+            <p>バックエンド連携は後で追加します。まずは画面フローを確認してください。</p>
           </div>
 
           <div className="login-form">
@@ -298,7 +287,7 @@ function App() {
             {loginError && <p className="login-error">{loginError}</p>}
           </div>
 
-          <button type="button" className="footer-button primary" onClick={handleLogin}>
+          <button type="button" className="footer-button primary full-width" onClick={handleLogin}>
             ログイン
           </button>
         </div>
@@ -321,26 +310,26 @@ function App() {
       <div className="screen-body">
         <div className="notice-card">
           <div>
-            <p className="card-kicker">メニュー</p>
-            <h3>業務メニューを選択してください</h3>
-            <p>注文受付・座席管理・店舗管理はここからアクセスできます。</p>
+            <p className="card-kicker">業務機能</p>
+            <h3>操作したい機能を選んでください</h3>
+            <p>注文受付、座席管理、店舗管理へ進めます。</p>
           </div>
         </div>
 
         <div className="action-grid">
           <button type="button" className="menu-card" onClick={() => setScreen('orders')}>
             <h3>注文受付 / 注文管理</h3>
-            <p>新しい注文を確認したり、注文履歴を管理します。</p>
+            <p>注文の確認と管理を行います。</p>
           </button>
 
           <button type="button" className="menu-card" onClick={() => setScreen('seats')}>
             <h3>座席管理</h3>
-            <p>座席の割り当てやステータスを管理します。</p>
+            <p>座席ステータスを確認・変更できます。</p>
           </button>
 
           <button type="button" className="menu-card" onClick={() => setScreen('store')}>
             <h3>店舗管理</h3>
-            <p>店舗設定や基本情報の確認を行います。</p>
+            <p>店舗情報を確認します。</p>
           </button>
         </div>
       </div>
@@ -349,8 +338,8 @@ function App() {
 
   const renderPlaceholderScreen = (title, description) => (
     <section className="screen list-screen">
-      <header className="screen-header sticky">
-        <button type="button" className="text-button" onClick={() => setScreen('employeeHome')}>
+      <header className="screen-header sticky employee-header">
+        <button type="button" className="back-button text-button" onClick={() => setScreen('employeeHome')}>
           ← 戻る
         </button>
         <div>
@@ -366,7 +355,57 @@ function App() {
         <div className="placeholder-card">
           <h3>{title}</h3>
           <p>{description}</p>
-          <p>バックエンド連携は後から追加します。</p>
+          <p>バックエンド連携は後ほど追加します。</p>
+        </div>
+      </div>
+    </section>
+  );
+
+  const renderWelcome = () => (
+    <section className="screen welcome-screen">
+      <div className="hero-banner">
+        <img
+          src="https://images.unsplash.com/photo-1526318896980-cf78c088247c?auto=format&fit=crop&w=1200&q=80"
+          alt="居酒屋の雰囲気"
+        />
+        <div className="hero-overlay" />
+        <div className="hero-copy">
+          <p className="eyebrow">Customer Order</p>
+          <h1>まず飲み放題の確認をしてください</h1>
+          <p>そのあとにメニューへ進むシンプルな注文画面です。</p>
+        </div>
+      </div>
+
+      <div className="screen-body">
+        <div className="prompt-card">
+          <div>
+            <p className="card-kicker">最初の確認</p>
+            <h2>飲み放題ですか？</h2>
+            <p>先に選んでもらうことで、ドリンク画面の案内を分かりやすくします。</p>
+          </div>
+
+          <div className="choice-row">
+            <button
+              type="button"
+              className="choice-button primary"
+              onClick={() => {
+                setDrinkPlan('all');
+                setScreen('home');
+              }}
+            >
+              はい、飲み放題です
+            </button>
+            <button
+              type="button"
+              className="choice-button secondary"
+              onClick={() => {
+                setDrinkPlan('none');
+                setScreen('home');
+              }}
+            >
+              いいえ、都度注文です
+            </button>
+          </div>
         </div>
       </div>
     </section>
@@ -679,7 +718,7 @@ function App() {
 
   return (
     <main className="customer-root">
-      <section className="app-shell" aria-label="顧客注文画面">
+      <section className="app-shell" aria-label="従業員および顧客画面">
         {screen === 'login' && renderLogin()}
         {screen === 'employeeHome' && renderEmployeeHome()}
         {screen === 'orders' &&
@@ -688,10 +727,7 @@ function App() {
             'ここから注文の受付と管理を行います。'
           )}
         {screen === 'seats' &&
-          renderPlaceholderScreen(
-            '座席管理',
-            'ここから座席の状態を確認・変更できます。'
-          )}
+          renderPlaceholderScreen('座席管理', 'ここから座席の状態を確認・変更できます。')}
         {screen === 'store' &&
           renderPlaceholderScreen('店舗管理', 'ここから店舗の基本設定を管理します。')}
         {screen === 'welcome' && renderWelcome()}
