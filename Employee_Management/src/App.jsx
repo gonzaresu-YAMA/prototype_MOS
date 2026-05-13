@@ -207,6 +207,15 @@ function App() {
     { id: 3, name: '佐藤次郎', role: 'キッチン', empId: 'EMP003', status: '在籍中' },
   ]);
 
+  // メニュー追加用フォーム
+  const [newMenuName, setNewMenuName] = useState('');
+  const [newMenuPrice, setNewMenuPrice] = useState('');
+  const [newMenuCategory, setNewMenuCategory] = useState('yakitori');
+
+  // 従業員追加用フォーム
+  const [newEmployeeName, setNewEmployeeName] = useState('');
+  const [newEmployeeRole, setNewEmployeeRole] = useState('ホール');
+
   useEffect(() => {
     if (screen !== 'complete') {
       return undefined;
@@ -341,6 +350,72 @@ function App() {
           : e
       )
     );
+  };
+
+  const addMenuToCategory = () => {
+    if (!newMenuName.trim() || !newMenuPrice.trim()) {
+      alert('メニュー名と価格を入力してください');
+      return;
+    }
+
+    const price = parseInt(newMenuPrice);
+    if (isNaN(price)) {
+      alert('価格は数値で入力してください');
+      return;
+    }
+
+    setMenuState(prev => ({
+      ...prev,
+      [newMenuCategory]: [
+        ...prev[newMenuCategory],
+        {
+          id: Date.now(),
+          name: newMenuName,
+          price: price,
+          status: '販売中',
+          image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=900&q=80',
+          description: '新しいメニュー',
+        },
+      ],
+    }));
+
+    setNewMenuName('');
+    setNewMenuPrice('');
+  };
+
+  const deleteMenuFromCategory = (categoryId, itemId) => {
+    setMenuState(prev => ({
+      ...prev,
+      [categoryId]: prev[categoryId].filter(item => item.id !== itemId),
+    }));
+  };
+
+  const addNewEmployee = () => {
+    if (!newEmployeeName.trim()) {
+      alert('従業員名を入力してください');
+      return;
+    }
+
+    const newId = Math.max(...employees.map(e => e.id), 0) + 1;
+    const newEmpId = `EMP${String(newId).padStart(3, '0')}`;
+
+    setEmployees(prev => [
+      ...prev,
+      {
+        id: newId,
+        name: newEmployeeName,
+        role: newEmployeeRole,
+        empId: newEmpId,
+        status: '在籍中',
+      },
+    ]);
+
+    setNewEmployeeName('');
+    setNewEmployeeRole('ホール');
+  };
+
+  const deleteEmployee = employeeId => {
+    setEmployees(prev => prev.filter(e => e.id !== employeeId));
   };
 
   const renderLogin = () => (
@@ -489,6 +564,51 @@ function App() {
       </header>
 
       <div className="screen-body scrollable">
+        <div style={{ padding: '16px', marginBottom: '16px', background: '#f5f5f5', borderRadius: '8px' }}>
+          <h4 style={{ margin: '0 0 12px 0' }}>メニュー追加</h4>
+          <div style={{ display: 'grid', gap: '8px' }}>
+            <select
+              value={newMenuCategory}
+              onChange={e => setNewMenuCategory(e.target.value)}
+              style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
+            >
+              {Object.entries(menuState).map(([categoryId]) => (
+                <option key={categoryId} value={categoryId}>
+                  {categories.find(c => c.id === categoryId)?.name || categoryId}
+                </option>
+              ))}
+            </select>
+            <input
+              type="text"
+              placeholder="メニュー名"
+              value={newMenuName}
+              onChange={e => setNewMenuName(e.target.value)}
+              style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
+            />
+            <input
+              type="number"
+              placeholder="価格"
+              value={newMenuPrice}
+              onChange={e => setNewMenuPrice(e.target.value)}
+              style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
+            />
+            <button
+              type="button"
+              onClick={addMenuToCategory}
+              style={{
+                padding: '8px',
+                borderRadius: '4px',
+                background: '#28a745',
+                color: 'white',
+                border: 'none',
+                cursor: 'pointer',
+              }}
+            >
+              追加
+            </button>
+          </div>
+        </div>
+
         <div className="action-grid">
           {Object.entries(menuState).map(([categoryId, items]) => (
             <div key={categoryId} className="menu-card">
@@ -507,19 +627,40 @@ function App() {
                     {item.name} - ¥{item.price.toLocaleString()}
                   </p>
                   <p>ステータス: {item.status}</p>
-                  <button
-                    type="button"
-                    onClick={() => toggleMenuStatus(categoryId, item.id)}
-                    style={{
-                      padding: '4px 8px',
-                      borderRadius: '4px',
-                      background: item.status === '販売中' ? '#dc3545' : '#28a745',
-                      color: 'white',
-                      border: 'none',
-                    }}
-                  >
-                    {item.status === '販売中' ? '停止' : '再開'}
-                  </button>
+                  <div style={{ display: 'flex', gap: '4px' }}>
+                    <button
+                      type="button"
+                      onClick={() => toggleMenuStatus(categoryId, item.id)}
+                      style={{
+                        flex: 1,
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        background: item.status === '販売中' ? '#dc3545' : '#28a745',
+                        color: 'white',
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontSize: '12px',
+                      }}
+                    >
+                      {item.status === '販売中' ? '停止' : '再開'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => deleteMenuFromCategory(categoryId, item.id)}
+                      style={{
+                        flex: 1,
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        background: '#6c757d',
+                        color: 'white',
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontSize: '12px',
+                      }}
+                    >
+                      削除
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -549,6 +690,43 @@ function App() {
       </header>
 
       <div className="screen-body scrollable">
+        <div style={{ padding: '16px', marginBottom: '16px', background: '#f5f5f5', borderRadius: '8px' }}>
+          <h4 style={{ margin: '0 0 12px 0' }}>従業員追加</h4>
+          <div style={{ display: 'grid', gap: '8px' }}>
+            <input
+              type="text"
+              placeholder="従業員名"
+              value={newEmployeeName}
+              onChange={e => setNewEmployeeName(e.target.value)}
+              style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
+            />
+            <select
+              value={newEmployeeRole}
+              onChange={e => setNewEmployeeRole(e.target.value)}
+              style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
+            >
+              <option value="店長">店長</option>
+              <option value="ホール">ホール</option>
+              <option value="キッチン">キッチン</option>
+              <option value="洗い場">洗い場</option>
+            </select>
+            <button
+              type="button"
+              onClick={addNewEmployee}
+              style={{
+                padding: '8px',
+                borderRadius: '4px',
+                background: '#28a745',
+                color: 'white',
+                border: 'none',
+                cursor: 'pointer',
+              }}
+            >
+              追加
+            </button>
+          </div>
+        </div>
+
         <div className="action-grid">
           {employees.map(employee => (
             <div key={employee.id} className="menu-card">
@@ -556,19 +734,40 @@ function App() {
               <p>役職: {employee.role}</p>
               <p>ID: {employee.empId}</p>
               <p>ステータス: {employee.status}</p>
-              <button
-                type="button"
-                onClick={() => toggleEmployeeStatus(employee.id)}
-                style={{
-                  padding: '4px 8px',
-                  borderRadius: '4px',
-                  background: employee.status === '在籍中' ? '#dc3545' : '#28a745',
-                  color: 'white',
-                  border: 'none',
-                }}
-              >
-                {employee.status === '在籍中' ? '退勤' : '出勤'}
-              </button>
+              <div style={{ display: 'flex', gap: '4px' }}>
+                <button
+                  type="button"
+                  onClick={() => toggleEmployeeStatus(employee.id)}
+                  style={{
+                    flex: 1,
+                    padding: '4px 8px',
+                    borderRadius: '4px',
+                    background: employee.status === '在籍中' ? '#dc3545' : '#28a745',
+                    color: 'white',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                  }}
+                >
+                  {employee.status === '在籍中' ? '退職' : '再開'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => deleteEmployee(employee.id)}
+                  style={{
+                    flex: 1,
+                    padding: '4px 8px',
+                    borderRadius: '4px',
+                    background: '#6c757d',
+                    color: 'white',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                  }}
+                >
+                  削除
+                </button>
+              </div>
             </div>
           ))}
         </div>
