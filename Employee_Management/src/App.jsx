@@ -167,6 +167,46 @@ function App() {
   const [history, setHistory] = useState([]);
   const [lastOrder, setLastOrder] = useState(null);
 
+  // 従業員管理用のデータ
+  const [orders, setOrders] = useState([
+    {
+      id: 'ORD-001',
+      table: 5,
+      items: [
+        { name: 'ねぎま串', quantity: 2, status: '調理中' },
+        { name: '生ビール', quantity: 1, status: '提供済み' },
+      ],
+      total: 1220,
+      createdAt: new Date(Date.now() - 300000),
+    },
+    {
+      id: 'ORD-002',
+      table: 3,
+      items: [
+        { name: 'つくね串', quantity: 1, status: '待機中' },
+        { name: 'ハイボール', quantity: 2, status: '調理中' },
+      ],
+      total: 1420,
+      createdAt: new Date(Date.now() - 120000),
+    },
+  ]);
+
+  const [tables, setTables] = useState([
+    { id: 1, name: 'テーブル1', status: '空席', qrCode: 'QR001', capacity: 4 },
+    { id: 2, name: 'テーブル2', status: '使用中', qrCode: 'QR002', capacity: 4 },
+    { id: 3, name: 'テーブル3', status: '使用中', qrCode: 'QR003', capacity: 6 },
+    { id: 4, name: 'テーブル4', status: '空席', qrCode: 'QR004', capacity: 2 },
+    { id: 5, name: 'テーブル5', status: '使用中', qrCode: 'QR005', capacity: 4 },
+  ]);
+
+  const [menuState, setMenuState] = useState(menuItems);
+
+  const [employees, setEmployees] = useState([
+    { id: 1, name: '田中太郎', role: '店長', empId: 'EMP001', status: '在籍中' },
+    { id: 2, name: '鈴木花子', role: 'ホール', empId: 'EMP002', status: '在籍中' },
+    { id: 3, name: '佐藤次郎', role: 'キッチン', empId: 'EMP003', status: '在籍中' },
+  ]);
+
   useEffect(() => {
     if (screen !== 'complete') {
       return undefined;
@@ -253,6 +293,56 @@ function App() {
     setScreen('login');
   };
 
+  const updateOrderStatus = (orderId, itemIndex, newStatus) => {
+    setOrders(
+      orders.map(order =>
+        order.id === orderId
+          ? {
+              ...order,
+              items: order.items.map((item, index) =>
+                index === itemIndex ? { ...item, status: newStatus } : item
+              ),
+            }
+          : order
+      )
+    );
+  };
+
+  const updateTableStatus = (tableId, newStatus) => {
+    setTables(tables.map(table => (table.id === tableId ? { ...table, status: newStatus } : table)));
+  };
+
+  const generateQRCode = tableId => {
+    alert(`テーブル${tableId}のQRコードを生成しました`);
+  };
+
+  const toggleMenuStatus = (categoryId, itemId) => {
+    setMenuState(prev => ({
+      ...prev,
+      [categoryId]: prev[categoryId].map(i =>
+        i.id === itemId
+          ? {
+              ...i,
+              status: i.status === '販売中' ? '販売停止' : '販売中',
+            }
+          : i
+      ),
+    }));
+  };
+
+  const toggleEmployeeStatus = employeeId => {
+    setEmployees(prev =>
+      prev.map(e =>
+        e.id === employeeId
+          ? {
+              ...e,
+              status: e.status === '在籍中' ? '退職' : '在籍中',
+            }
+          : e
+      )
+    );
+  };
+
   const renderLogin = () => (
     <section className="screen login-screen">
       <div className="screen-body auth-shell">
@@ -331,6 +421,156 @@ function App() {
             <h3>店舗管理</h3>
             <p>店舗情報を確認します。</p>
           </button>
+        </div>
+      </div>
+    </section>
+  );
+
+  const renderStoreManagement = () => (
+    <section className="screen list-screen">
+      <header className="screen-header sticky employee-header">
+        <button
+          type="button"
+          className="back-button text-button"
+          onClick={() => setScreen('employeeHome')}
+        >
+          ← 戻る
+        </button>
+        <div>
+          <p className="eyebrow">管理画面</p>
+          <h2>店舗管理</h2>
+        </div>
+        <button type="button" className="user-icon-button" onClick={handleLogout}>
+          👤
+        </button>
+      </header>
+
+      <div className="screen-body scrollable">
+        <div className="action-grid">
+          <button
+            type="button"
+            className="menu-card"
+            onClick={() => setScreen('menuManagement')}
+          >
+            <h3>メニュー管理</h3>
+            <p>メニューの追加、編集、削除を行います。</p>
+          </button>
+
+          <button
+            type="button"
+            className="menu-card"
+            onClick={() => setScreen('employeeManagement')}
+          >
+            <h3>従業員管理</h3>
+            <p>従業員の追加、編集、削除を行います。</p>
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+
+  const renderMenuManagement = () => (
+    <section className="screen list-screen">
+      <header className="screen-header sticky employee-header">
+        <button
+          type="button"
+          className="back-button text-button"
+          onClick={() => setScreen('store')}
+        >
+          ← 戻る
+        </button>
+        <div>
+          <p className="eyebrow">管理画面</p>
+          <h2>メニュー管理</h2>
+        </div>
+        <button type="button" className="user-icon-button" onClick={handleLogout}>
+          👤
+        </button>
+      </header>
+
+      <div className="screen-body scrollable">
+        <div className="action-grid">
+          {Object.entries(menuState).map(([categoryId, items]) => (
+            <div key={categoryId} className="menu-card">
+              <h3>{categories.find(c => c.id === categoryId)?.name || categoryId}</h3>
+              {items.map(item => (
+                <div
+                  key={item.id}
+                  style={{
+                    marginBottom: '8px',
+                    padding: '8px',
+                    border: '1px solid #ddd',
+                    borderRadius: '8px',
+                  }}
+                >
+                  <p>
+                    {item.name} - ¥{item.price.toLocaleString()}
+                  </p>
+                  <p>ステータス: {item.status}</p>
+                  <button
+                    type="button"
+                    onClick={() => toggleMenuStatus(categoryId, item.id)}
+                    style={{
+                      padding: '4px 8px',
+                      borderRadius: '4px',
+                      background: item.status === '販売中' ? '#dc3545' : '#28a745',
+                      color: 'white',
+                      border: 'none',
+                    }}
+                  >
+                    {item.status === '販売中' ? '停止' : '再開'}
+                  </button>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+
+  const renderEmployeeManagement = () => (
+    <section className="screen list-screen">
+      <header className="screen-header sticky employee-header">
+        <button
+          type="button"
+          className="back-button text-button"
+          onClick={() => setScreen('store')}
+        >
+          ← 戻る
+        </button>
+        <div>
+          <p className="eyebrow">管理画面</p>
+          <h2>従業員管理</h2>
+        </div>
+        <button type="button" className="user-icon-button" onClick={handleLogout}>
+          👤
+        </button>
+      </header>
+
+      <div className="screen-body scrollable">
+        <div className="action-grid">
+          {employees.map(employee => (
+            <div key={employee.id} className="menu-card">
+              <h3>{employee.name}</h3>
+              <p>役職: {employee.role}</p>
+              <p>ID: {employee.empId}</p>
+              <p>ステータス: {employee.status}</p>
+              <button
+                type="button"
+                onClick={() => toggleEmployeeStatus(employee.id)}
+                style={{
+                  padding: '4px 8px',
+                  borderRadius: '4px',
+                  background: employee.status === '在籍中' ? '#dc3545' : '#28a745',
+                  color: 'white',
+                  border: 'none',
+                }}
+              >
+                {employee.status === '在籍中' ? '退勤' : '出勤'}
+              </button>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -728,8 +968,9 @@ function App() {
           )}
         {screen === 'seats' &&
           renderPlaceholderScreen('座席管理', 'ここから座席の状態を確認・変更できます。')}
-        {screen === 'store' &&
-          renderPlaceholderScreen('店舗管理', 'ここから店舗の基本設定を管理します。')}
+        {screen === 'store' && renderStoreManagement()}
+        {screen === 'menuManagement' && renderMenuManagement()}
+        {screen === 'employeeManagement' && renderEmployeeManagement()}
         {screen === 'welcome' && renderWelcome()}
         {screen === 'home' && renderHome()}
         {screen === 'category' && renderCategory()}
