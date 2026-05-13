@@ -211,6 +211,7 @@ function App() {
   const [newMenuName, setNewMenuName] = useState('');
   const [newMenuPrice, setNewMenuPrice] = useState('');
   const [newMenuCategory, setNewMenuCategory] = useState('yakitori');
+  const [isMenuAddVisible, setIsMenuAddVisible] = useState(false);
 
   // 従業員追加用フォーム
   const [newEmployeeName, setNewEmployeeName] = useState('');
@@ -564,50 +565,73 @@ function App() {
       </header>
 
       <div className="screen-body scrollable">
-        <div style={{ padding: '16px', marginBottom: '16px', background: '#f5f5f5', borderRadius: '8px' }}>
-          <h4 style={{ margin: '0 0 12px 0' }}>メニュー追加</h4>
-          <div style={{ display: 'grid', gap: '8px' }}>
-            <select
-              value={newMenuCategory}
-              onChange={e => setNewMenuCategory(e.target.value)}
-              style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
-            >
-              {Object.entries(menuState).map(([categoryId]) => (
-                <option key={categoryId} value={categoryId}>
-                  {categories.find(c => c.id === categoryId)?.name || categoryId}
-                </option>
-              ))}
-            </select>
-            <input
-              type="text"
-              placeholder="メニュー名"
-              value={newMenuName}
-              onChange={e => setNewMenuName(e.target.value)}
-              style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
-            />
-            <input
-              type="number"
-              placeholder="価格"
-              value={newMenuPrice}
-              onChange={e => setNewMenuPrice(e.target.value)}
-              style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
-            />
-            <button
-              type="button"
-              onClick={addMenuToCategory}
-              style={{
-                padding: '8px',
-                borderRadius: '4px',
-                background: '#28a745',
-                color: 'white',
-                border: 'none',
-                cursor: 'pointer',
-              }}
-            >
-              追加
-            </button>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <div>
+            <h4 style={{ margin: '0 0 8px 0' }}>メニュー管理</h4>
+            <p style={{ margin: 0 }}>現在のメニューを確認・追加できます。</p>
           </div>
+          <button
+            type="button"
+            onClick={() => setIsMenuAddVisible((prev) => !prev)}
+            style={{
+              padding: '10px 16px',
+              borderRadius: '6px',
+              background: '#007bff',
+              color: 'white',
+              border: 'none',
+              cursor: 'pointer',
+            }}
+          >
+            {isMenuAddVisible ? '追加フォームを閉じる' : 'メニューを追加'}
+          </button>
         </div>
+
+        {isMenuAddVisible && (
+          <div style={{ padding: '16px', marginBottom: '16px', background: '#f5f5f5', borderRadius: '8px' }}>
+            <h4 style={{ margin: '0 0 12px 0' }}>メニュー追加</h4>
+            <div style={{ display: 'grid', gap: '8px' }}>
+              <select
+                value={newMenuCategory}
+                onChange={e => setNewMenuCategory(e.target.value)}
+                style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
+              >
+                {Object.entries(menuState).map(([categoryId]) => (
+                  <option key={categoryId} value={categoryId}>
+                    {categories.find(c => c.id === categoryId)?.name || categoryId}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="text"
+                placeholder="メニュー名"
+                value={newMenuName}
+                onChange={e => setNewMenuName(e.target.value)}
+                style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
+              />
+              <input
+                type="number"
+                placeholder="価格"
+                value={newMenuPrice}
+                onChange={e => setNewMenuPrice(e.target.value)}
+                style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
+              />
+              <button
+                type="button"
+                onClick={addMenuToCategory}
+                style={{
+                  padding: '8px',
+                  borderRadius: '4px',
+                  background: '#28a745',
+                  color: 'white',
+                  border: 'none',
+                  cursor: 'pointer',
+                }}
+              >
+                追加
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="action-grid">
           {Object.entries(menuState).map(([categoryId, items]) => (
