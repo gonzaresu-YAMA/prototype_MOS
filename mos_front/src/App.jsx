@@ -1,31 +1,171 @@
 import { useEffect, useMemo, useState } from 'react';
 import './App.css';
-import { categories, menuItems } from './data/menuData';
-import { calculateDrinkTimes, createOrderId } from './utils/helpers';
-import { QRScreen } from './screens/QRScreen';
-import { WelcomeScreen } from './screens/WelcomeScreen';
-import { HomeScreen } from './screens/HomeScreen';
-import { CategoryScreen } from './screens/CategoryScreen';
-import { CartScreen } from './screens/CartScreen';
-import { HistoryScreen } from './screens/HistoryScreen';
-import { CheckoutScreen } from './screens/CheckoutScreen';
-import { CheckoutCompleteScreen } from './screens/CheckoutCompleteScreen';
-import { CompleteScreen } from './screens/CompleteScreen';
+
+const categories = [
+  {
+    id: 'yakitori',
+    name: '焼き鳥',
+    icon: '串',
+    image:
+      'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=900&q=80',
+    description: '炭火の香りが立つ、席で選びやすい看板メニュー',
+  },
+  {
+    id: 'drinks',
+    name: 'ドリンク',
+    icon: '杯',
+    image:
+      'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=900&q=80',
+    description: '飲み放題の有無に合わせて見やすく整理したドリンク一覧',
+  },
+  {
+    id: 'supplies',
+    name: '無料備品',
+    icon: '無料',
+    image:
+      'https://images.unsplash.com/photo-1532635241-17e820acc59f?auto=format&fit=crop&w=900&q=80',
+    description: 'おしぼり・取り皿・お箸は無料で追加できます',
+  },
+  {
+    id: 'dessert',
+    name: 'デザート',
+    icon: '甘',
+    image:
+      'https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=900&q=80',
+    description: '食後に軽く楽しめる甘味を用意しました',
+  },
+];
+
+const menuItems = {
+  yakitori: [
+    {
+      id: 1,
+      name: 'ねぎま串',
+      price: 320,
+      status: '販売中',
+      image:
+        'https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?auto=format&fit=crop&w=900&q=80',
+      description: '香ばしい鶏肉とねぎの定番串',
+    },
+    {
+      id: 2,
+      name: 'つくね串',
+      price: 360,
+      status: '販売中',
+      image:
+        'https://images.unsplash.com/photo-1603360946369-dc9bb6258143?auto=format&fit=crop&w=900&q=80',
+      description: 'ふっくら食感でたれがよく絡む人気串',
+    },
+    {
+      id: 3,
+      name: '皮串',
+      price: 280,
+      status: '販売中',
+      image:
+        'https://images.unsplash.com/photo-1564834744159-ff0ea41ba4b7?auto=format&fit=crop&w=900&q=80',
+      description: '外は香ばしく中はジューシー',
+    },
+  ],
+  drinks: [
+    {
+      id: 11,
+      name: '生ビール',
+      price: 580,
+      status: '販売中',
+      image:
+        'https://images.unsplash.com/photo-1558640476-4370f6d6e1d9?auto=format&fit=crop&w=900&q=80',
+      description: 'キレのある定番ビール',
+    },
+    {
+      id: 12,
+      name: 'ハイボール',
+      price: 520,
+      status: '販売中',
+      image:
+        'https://images.unsplash.com/photo-1514361892635-eae31f9d1b54?auto=format&fit=crop&w=900&q=80',
+      description: 'すっきり飲みやすい一杯',
+    },
+    {
+      id: 13,
+      name: '烏龍茶',
+      price: 280,
+      status: '販売中',
+      image:
+        'https://images.unsplash.com/photo-1517701550927-30cf4ba1b47f?auto=format&fit=crop&w=900&q=80',
+      description: '食事に合わせやすいノンアル',
+    },
+  ],
+  supplies: [
+    {
+      id: 21,
+      name: 'おしぼり',
+      price: 0,
+      status: '無料',
+      image:
+        'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=900&q=80',
+      description: '必要な数だけ無料で追加できます',
+    },
+    {
+      id: 22,
+      name: '取り皿',
+      price: 0,
+      status: '無料',
+      image:
+        'https://images.unsplash.com/photo-1453606845775-bb9a3a8b9c5e?auto=format&fit=crop&w=900&q=80',
+      description: 'シェア用の皿を無料でお届けします',
+    },
+    {
+      id: 23,
+      name: '割り箸',
+      price: 0,
+      status: '無料',
+      image:
+        'https://images.unsplash.com/photo-1600891964599-f61ba0e24092?auto=format&fit=crop&w=900&q=80',
+      description: 'お箸も追加料金なしで注文可能です',
+    },
+  ],
+  dessert: [
+    {
+      id: 31,
+      name: 'ガトーショコラ',
+      price: 480,
+      status: '販売中',
+      image:
+        'https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=900&q=80',
+      description: 'しっとり濃厚なチョコレートケーキ',
+    },
+    {
+      id: 32,
+      name: '季節のアイス',
+      price: 320,
+      status: '販売中',
+      image:
+        'https://images.unsplash.com/photo-1501443762994-82bd5dace89a?auto=format&fit=crop&w=900&q=80',
+      description: '最後にさっぱりと締める甘味',
+    },
+  ],
+};
+
+function formatPrice(price) {
+  return price === 0 ? '無料' : `¥${price.toLocaleString()}`;
+}
+
+function createOrderId() {
+  return `ORD-${Date.now()}`;
+}
 
 function App() {
-  const [screen, setScreen] = useState('qr');
+  const [screen, setScreen] = useState('login');
+  const [loginId, setLoginId] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+  const [employeeUser, setEmployeeUser] = useState(null);
+
   const [drinkPlan, setDrinkPlan] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('yakitori');
   const [cart, setCart] = useState([]);
   const [history, setHistory] = useState([]);
   const [lastOrder, setLastOrder] = useState(null);
-  const [tableId, setTableId] = useState(null);
-  const [drinkTimeStart, setDrinkTimeStart] = useState(null);
-  const [drinkTimeEnd, setDrinkTimeEnd] = useState(null);
-  const [drinkPlanPrice, setDrinkPlanPrice] = useState(0);
-  const [checkoutTotal, setCheckoutTotal] = useState(0);
-
-  const DRINK_PLAN_PRICES = { 2: 1500, 3: 2000 };
 
   useEffect(() => {
     if (screen !== 'complete') {
@@ -49,20 +189,15 @@ function App() {
   const cartTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   const addToCart = (item) => {
-    const isDrink = selectedCategory === 'drinks';
-    const effectiveItem = (drinkPlan === 'all' && isDrink)
-      ? { ...item, price: 0 }
-      : item;
-
     setCart((currentCart) => {
-      const existing = currentCart.find((cartItem) => cartItem.id === effectiveItem.id);
+      const existing = currentCart.find((cartItem) => cartItem.id === item.id);
       if (existing) {
         return currentCart.map((cartItem) =>
-          cartItem.id === effectiveItem.id ? { ...cartItem, quantity: cartItem.quantity + 1 } : cartItem
+          cartItem.id === item.id ? { ...cartItem, quantity: cartItem.quantity + 1 } : cartItem
         );
       }
 
-      return [...currentCart, { ...effectiveItem, quantity: 1 }];
+      return [...currentCart, { ...item, quantity: 1 }];
     });
   };
 
@@ -93,123 +228,478 @@ function App() {
     setScreen('complete');
   };
 
-  const handleDurationSelect = (hours) => {
-    const times = calculateDrinkTimes(hours);
-    setDrinkTimeStart(times.start);
-    setDrinkTimeEnd(times.end);
-    setDrinkPlanPrice(DRINK_PLAN_PRICES[hours] ?? 0);
-    setScreen('home');
+  const openCategory = (categoryId) => {
+    setSelectedCategory(categoryId);
+    setScreen('category');
   };
 
-  const submitCheckout = () => {
-    const foodTotal = history.reduce((sum, order) => sum + order.totalPrice, 0);
-    setCheckoutTotal(foodTotal + drinkPlanPrice);
-    setCart([]);
-    setHistory([]);
-    setScreen('qr');
+  const handleLogin = () => {
+    if (!loginId.trim() || !loginPassword.trim()) {
+      setLoginError('IDとパスワードを入力してください。');
+      return;
+    }
+    setEmployeeUser({ id: loginId.trim() });
+    setLoginError('');
+    setLoginPassword('');
+    setScreen('employeeHome');
   };
 
-  const resetDemo = () => {
-    setScreen('qr');
-    setDrinkPlan(null);
-    setSelectedCategory('yakitori');
-    setCart([]);
-    setHistory([]);
-    setLastOrder(null);
-    setTableId(null);
-    setDrinkTimeStart(null);
-    setDrinkTimeEnd(null);
-    setDrinkPlanPrice(0);
-    setCheckoutTotal(0);
+  const handleLogout = () => {
+    setEmployeeUser(null);
+    setLoginId('');
+    setLoginPassword('');
+    setLoginError('');
+    setScreen('login');
   };
+
+  const renderLogin = () => (
+    <section className="screen welcome-screen">
+      <div className="hero-banner">
+        <img
+          src="https://images.unsplash.com/photo-1526318896980-cf78c088247c?auto=format&fit=crop&w=1200&q=80"
+          alt="居酒屋の雰囲気"
+        />
+        <div className="hero-overlay" />
+        <div className="hero-copy">
+          <p className="eyebrow">Staff Login</p>
+          <h1>従業員ログイン</h1>
+          <p>ID とパスワードを入力して、従業員ホームに進んでください。</p>
+        </div>
+      </div>
+
+      <div className="screen-body">
+        <div className="auth-card">
+          <div>
+            <p className="card-kicker">従業員認証</p>
+            <h2>ログインしてください</h2>
+          </div>
+
+          <div className="login-form">
+            <label className="form-row">
+              <span>ID</span>
+              <input
+                type="text"
+                value={loginId}
+                onChange={(event) => setLoginId(event.target.value)}
+                placeholder="スタッフID"
+              />
+            </label>
+
+            <label className="form-row">
+              <span>パスワード</span>
+              <input
+                type="password"
+                value={loginPassword}
+                onChange={(event) => setLoginPassword(event.target.value)}
+                placeholder="パスワード"
+              />
+            </label>
+
+            {loginError && <p className="login-error">{loginError}</p>}
+          </div>
+
+          <button type="button" className="footer-button primary" onClick={handleLogin}>
+            ログイン
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+
+  const renderEmployeeHome = () => (
+    <section className="screen home-screen">
+      <header className="screen-header sticky">
+        <div>
+          <p className="eyebrow">従業員メニュー</p>
+          <h2>ようこそ {employeeUser?.id ?? 'スタッフ'} さん</h2>
+        </div>
+        <button type="button" className="user-icon-button" onClick={handleLogout}>
+          👤
+        </button>
+      </header>
+
+      <div className="screen-body">
+        <div className="notice-card">
+          <div>
+            <p className="card-kicker">メニュー</p>
+            <h3>業務メニューを選択してください</h3>
+            <p>注文受付・座席管理・店舗管理はここからアクセスできます。</p>
+          </div>
+        </div>
+
+        <div className="action-grid">
+          <button type="button" className="menu-card" onClick={() => setScreen('orders')}>
+            <h3>注文受付 / 注文管理</h3>
+            <p>新しい注文を確認したり、注文履歴を管理します。</p>
+          </button>
+
+          <button type="button" className="menu-card" onClick={() => setScreen('seats')}>
+            <h3>座席管理</h3>
+            <p>座席の割り当てやステータスを管理します。</p>
+          </button>
+
+          <button type="button" className="menu-card" onClick={() => setScreen('store')}>
+            <h3>店舗管理</h3>
+            <p>店舗設定や基本情報の確認を行います。</p>
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+
+  const renderPlaceholderScreen = (title, description) => (
+    <section className="screen list-screen">
+      <header className="screen-header sticky">
+        <button type="button" className="text-button" onClick={() => setScreen('employeeHome')}>
+          ← 戻る
+        </button>
+        <div>
+          <p className="eyebrow">管理画面</p>
+          <h2>{title}</h2>
+        </div>
+        <button type="button" className="user-icon-button" onClick={handleLogout}>
+          👤
+        </button>
+      </header>
+
+      <div className="screen-body scrollable">
+        <div className="placeholder-card">
+          <h3>{title}</h3>
+          <p>{description}</p>
+          <p>バックエンド連携は後から追加します。</p>
+        </div>
+      </div>
+    </section>
+  );
+
+  const renderHome = () => (
+    <section className="screen home-screen">
+      <header className="screen-header sticky">
+        <div>
+          <p className="eyebrow">Midori-tei</p>
+          <h2>注文画面</h2>
+        </div>
+        <div className="status-stack">
+          <span className={`status-pill ${drinkPlan === 'all' ? 'accent' : 'muted'}`}>
+            {drinkPlan === 'all' ? '飲み放題あり' : '飲み放題なし'}
+          </span>
+          <span className="status-pill muted">売り切れなし</span>
+        </div>
+      </header>
+
+      <div className="screen-body">
+        <div className="notice-card">
+          <div>
+            <p className="card-kicker">おすすめ</p>
+            <h3>画像だけの画面から、直接操作できる画面に変更しました</h3>
+            <p>カードを押すと、その場で一覧に進みます。</p>
+          </div>
+          <img
+            src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=900&q=80"
+            alt="料理の盛り付け"
+          />
+        </div>
+
+        <div className="category-grid">
+          {categories.map((category) => (
+            <button
+              key={category.id}
+              type="button"
+              className="category-card"
+              onClick={() => openCategory(category.id)}
+            >
+              <img src={category.image} alt={category.name} loading="lazy" />
+              <div className="category-card-body">
+                <div className="category-topline">
+                  <span className="category-icon">{category.icon}</span>
+                  <span className="status-chip">販売中</span>
+                </div>
+                <h3>{category.name}</h3>
+                <p>{category.description}</p>
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <footer className="screen-footer sticky">
+        <button type="button" className="footer-button ghost" onClick={() => setScreen('history')}>
+          履歴
+        </button>
+        <button type="button" className="footer-button primary" onClick={() => setScreen('cart')}>
+          カートを見る {cartCount > 0 ? `(${cartCount})` : ''}
+        </button>
+      </footer>
+    </section>
+  );
+
+  const renderCategory = () => {
+    const items = menuItems[selectedCategory] ?? [];
+
+    return (
+      <section className="screen list-screen">
+        <header className="screen-header sticky">
+          <button type="button" className="text-button" onClick={() => setScreen('home')}>
+            ← 戻る
+          </button>
+          <div>
+            <p className="eyebrow">Menu</p>
+            <h2>{activeCategory.name}</h2>
+          </div>
+          <span className={`status-pill ${selectedCategory === 'supplies' ? 'accent' : 'muted'}`}>
+            {selectedCategory === 'supplies' ? '無料' : '販売中'}
+          </span>
+        </header>
+
+        <div className="screen-body scrollable">
+          <div className="category-hero">
+            <img src={activeCategory.image} alt={activeCategory.name} />
+            <div>
+              <p className="card-kicker">{activeCategory.icon}</p>
+              <h3>{activeCategory.description}</h3>
+              <p>
+                {selectedCategory === 'supplies'
+                  ? '無料備品はすべて ¥0 です。'
+                  : '販売中の状態を明示し、売り切れ表示は出さない構成にしています。'}
+              </p>
+            </div>
+          </div>
+
+          <div className="item-list">
+            {items.map((item) => (
+              <article key={item.id} className="item-card">
+                <img src={item.image} alt={item.name} loading="lazy" />
+                <div className="item-card-body">
+                  <div className="item-card-topline">
+                    <h3>{item.name}</h3>
+                    <span className="status-chip">{item.status}</span>
+                  </div>
+                  <p>{item.description}</p>
+                  <div className="item-card-footer">
+                    <strong>{formatPrice(item.price)}</strong>
+                    <button type="button" className="small-button" onClick={() => addToCart(item)}>
+                      追加
+                    </button>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+
+        <footer className="screen-footer sticky">
+          <button type="button" className="footer-button ghost" onClick={() => setScreen('home')}>
+            メニュー
+          </button>
+          <button type="button" className="footer-button primary" onClick={() => setScreen('cart')}>
+            カート {cartCount > 0 ? `(${cartCount})` : ''} ・ ¥{cartTotal.toLocaleString()}
+          </button>
+        </footer>
+      </section>
+    );
+  };
+
+  const renderCart = () => (
+    <section className="screen cart-screen">
+      <header className="screen-header sticky">
+        <button type="button" className="text-button" onClick={() => setScreen('home')}>
+          ← 戻る
+        </button>
+        <div>
+          <p className="eyebrow">Cart</p>
+          <h2>注文確認</h2>
+        </div>
+        <span className="status-pill muted">{cartCount}点</span>
+      </header>
+
+      <div className="screen-body scrollable">
+        {cart.length === 0 ? (
+          <div className="empty-state">
+            <h3>カートは空です</h3>
+            <p>商品を追加すると、ここに一覧が表示されます。</p>
+            <button type="button" className="footer-button primary" onClick={() => setScreen('home')}>
+              メニューへ戻る
+            </button>
+          </div>
+        ) : (
+          <>
+            <div className="cart-list">
+              {cart.map((item) => (
+                <article key={item.id} className="cart-item">
+                  <img src={item.image} alt={item.name} loading="lazy" />
+                  <div className="cart-item-body">
+                    <div className="item-card-topline">
+                      <h3>{item.name}</h3>
+                      <span className="status-chip">{formatPrice(item.price)}</span>
+                    </div>
+                    <p>{item.description}</p>
+                    <div className="quantity-row">
+                      <button
+                        type="button"
+                        className="qty-button"
+                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                      >
+                        −
+                      </button>
+                      <span className="qty-value">{item.quantity}</span>
+                      <button
+                        type="button"
+                        className="qty-button"
+                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                  <div className="cart-item-price">¥{(item.price * item.quantity).toLocaleString()}</div>
+                </article>
+              ))}
+            </div>
+
+            <div className="summary-card">
+              <div className="summary-row">
+                <span>小計</span>
+                <strong>¥{cartTotal.toLocaleString()}</strong>
+              </div>
+              <div className="summary-row total">
+                <span>合計</span>
+                <strong>¥{cartTotal.toLocaleString()}</strong>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+
+      <footer className="screen-footer sticky">
+        <button type="button" className="footer-button ghost" onClick={() => setScreen('home')}>
+          メニューへ
+        </button>
+        <button
+          type="button"
+          className="footer-button primary"
+          onClick={submitOrder}
+          disabled={cart.length === 0}
+        >
+          注文する
+        </button>
+      </footer>
+    </section>
+  );
+
+  const renderHistory = () => (
+    <section className="screen history-screen">
+      <header className="screen-header sticky">
+        <button type="button" className="text-button" onClick={() => setScreen('home')}>
+          ← 戻る
+        </button>
+        <div>
+          <p className="eyebrow">History</p>
+          <h2>注文履歴</h2>
+        </div>
+        <span className="status-pill muted">{history.length}件</span>
+      </header>
+
+      <div className="screen-body scrollable">
+        {history.length === 0 ? (
+          <div className="empty-state">
+            <h3>まだ注文はありません</h3>
+            <p>最初の注文を送信すると、ここに履歴が残ります。</p>
+          </div>
+        ) : (
+          <div className="history-list">
+            {history.map((order) => (
+              <article key={order.id} className="history-card">
+                <div className="item-card-topline">
+                  <h3>{order.id}</h3>
+                  <span className="status-chip">送信済み</span>
+                </div>
+                <p>{new Date(order.timestamp).toLocaleString('ja-JP')}</p>
+                <div className="history-items">
+                  {order.items.map((item) => (
+                    <div key={item.id} className="history-line">
+                      <span>
+                        {item.name} × {item.quantity}
+                      </span>
+                      <span>{formatPrice(item.price * item.quantity)}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="summary-row total">
+                  <span>合計</span>
+                  <strong>¥{order.totalPrice.toLocaleString()}</strong>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <footer className="screen-footer sticky">
+        <button type="button" className="footer-button ghost" onClick={() => setScreen('home')}>
+          メニューへ
+        </button>
+        <button type="button" className="footer-button primary" onClick={() => setScreen('cart')}>
+          カートを見る
+        </button>
+      </footer>
+    </section>
+  );
+
+  const renderComplete = () => (
+    <section className="screen complete-screen">
+      <div className="screen-body complete-body">
+        <div className="completion-card">
+          <div className="completion-mark">✓</div>
+          <p className="card-kicker">Order Complete</p>
+          <h2>注文を送信しました</h2>
+          {lastOrder && (
+            <>
+              <p className="completion-id">注文番号 {lastOrder.id}</p>
+              <div className="summary-card compact">
+                {lastOrder.items.map((item) => (
+                  <div key={item.id} className="history-line">
+                    <span>
+                      {item.name} × {item.quantity}
+                    </span>
+                    <span>{formatPrice(item.price * item.quantity)}</span>
+                  </div>
+                ))}
+                <div className="summary-row total">
+                  <span>合計</span>
+                  <strong>¥{lastOrder.totalPrice.toLocaleString()}</strong>
+                </div>
+              </div>
+            </>
+          )}
+          <p>処理は即時反映するようにして、重い遷移を入れていません。</p>
+        </div>
+      </div>
+    </section>
+  );
 
   return (
     <main className="customer-root">
       <section className="app-shell" aria-label="顧客注文画面">
-        {screen === 'qr' && (
-          <QRScreen
-            onScan={() => {
-              setTableId(1);
-              setScreen('welcome');
-            }}
-          />
-        )}
-        {screen === 'welcome' && (
-          <WelcomeScreen
-            tableId={tableId}
-            drinkPlan={drinkPlan}
-            onSelectAllPlan={() => setDrinkPlan('all')}
-            onSelectNoPlan={() => {
-              setDrinkPlan('none');
-              setScreen('home');
-            }}
-            onSelectDuration={handleDurationSelect}
-          />
-        )}
-        {screen === 'home' && (
-          <HomeScreen
-            drinkPlan={drinkPlan}
-            drinkTimeStart={drinkTimeStart}
-            drinkTimeEnd={drinkTimeEnd}
-            cartCount={cartCount}
-            categories={categories}
-            onCategoryClick={(categoryId) => {
-              setSelectedCategory(categoryId);
-              setScreen('category');
-            }}
-            onCartClick={() => setScreen('cart')}
-            onHistoryClick={() => setScreen('history')}
-            onCheckout={() => setScreen('checkout')}
-          />
-        )}
-        {screen === 'category' && (
-          <CategoryScreen
-            selectedCategory={selectedCategory}
-            activeCategory={activeCategory}
-            items={menuItems[selectedCategory] ?? []}
-            cartCount={cartCount}
-            cartTotal={cartTotal}
-            onAddToCart={addToCart}
-            onBack={() => setScreen('home')}
-            onCartClick={() => setScreen('cart')}
-          />
-        )}
-        {screen === 'cart' && (
-          <CartScreen
-            cart={cart}
-            cartCount={cartCount}
-            cartTotal={cartTotal}
-            onUpdateQuantity={updateQuantity}
-            onSubmitOrder={submitOrder}
-            onBack={() => setScreen('home')}
-          />
-        )}
-        {screen === 'history' && (
-          <HistoryScreen
-            history={history}
-            onBack={() => setScreen('home')}
-            onCartClick={() => setScreen('cart')}
-          />
-        )}
-        {screen === 'checkout' && (
-          <CheckoutScreen
-            tableId={tableId}
-            drinkTimeStart={drinkTimeStart}
-            drinkTimeEnd={drinkTimeEnd}
-            drinkPlanPrice={drinkPlanPrice}
-            history={history}
-            onBack={() => setScreen('home')}
-            onSubmit={submitCheckout}
-          />
-        )}
-        {screen === 'checkoutComplete' && (
-          <CheckoutCompleteScreen
-            tableId={tableId}
-            totalPrice={checkoutTotal}
-            onRestart={resetDemo}
-          />
-        )}
-        {screen === 'complete' && <CompleteScreen lastOrder={lastOrder} />}
+        {screen === 'login' && renderLogin()}
+        {screen === 'employeeHome' && renderEmployeeHome()}
+        {screen === 'orders' &&
+          renderPlaceholderScreen(
+            '注文受付 / 注文管理',
+            'ここから注文の受付と管理を行います。'
+          )}
+        {screen === 'seats' &&
+          renderPlaceholderScreen(
+            '座席管理',
+            'ここから座席の状態を確認・変更できます。'
+          )}
+        {screen === 'store' &&
+          renderPlaceholderScreen('店舗管理', 'ここから店舗の基本設定を管理します。')}
+        {screen === 'welcome' && renderWelcome()}
+        {screen === 'home' && renderHome()}
+        {screen === 'category' && renderCategory()}
+        {screen === 'cart' && renderCart()}
+        {screen === 'history' && renderHistory()}
+        {screen === 'complete' && renderComplete()}
       </section>
     </main>
   );

@@ -211,17 +211,12 @@ function App() {
   const [newMenuName, setNewMenuName] = useState('');
   const [newMenuPrice, setNewMenuPrice] = useState('');
   const [newMenuCategory, setNewMenuCategory] = useState('yakitori');
+  const [isMenuAddVisible, setIsMenuAddVisible] = useState(false);
 
   // 従業員追加用フォーム
   const [newEmployeeName, setNewEmployeeName] = useState('');
   const [newEmployeeRole, setNewEmployeeRole] = useState('ホール');
-
-  // 削除確認用
-  const [deleteConfirmData, setDeleteConfirmData] = useState(null);
-
-  // 従業員削除用フォーム
-  const [deleteEmployeeId, setDeleteEmployeeId] = useState('');
-  const [searchedEmployeeForDelete, setSearchedEmployeeForDelete] = useState(null);
+  const [isEmployeeAddVisible, setIsEmployeeAddVisible] = useState(false);
 
   useEffect(() => {
     if (screen !== 'complete') {
@@ -632,25 +627,73 @@ function App() {
       </header>
 
       <div className="screen-body scrollable">
-        <div style={{ padding: '16px', marginBottom: '16px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <div>
+            <h4 style={{ margin: '0 0 8px 0' }}>メニュー管理</h4>
+            <p style={{ margin: 0 }}>現在のメニューを確認・追加できます。</p>
+          </div>
           <button
             type="button"
-            onClick={() => setScreen('addMenu')}
+            onClick={() => setIsMenuAddVisible((prev) => !prev)}
             style={{
-              width: '100%',
-              padding: '12px',
-              borderRadius: '8px',
-              background: '#28a745',
+              padding: '10px 16px',
+              borderRadius: '6px',
+              background: '#007bff',
               color: 'white',
               border: 'none',
               cursor: 'pointer',
-              fontWeight: '700',
-              fontSize: '16px',
             }}
           >
-            新しいメニューを追加
+            {isMenuAddVisible ? '追加フォームを閉じる' : 'メニューを追加'}
           </button>
         </div>
+
+        {isMenuAddVisible && (
+          <div style={{ padding: '16px', marginBottom: '16px', background: '#f5f5f5', borderRadius: '8px' }}>
+            <h4 style={{ margin: '0 0 12px 0' }}>メニュー追加</h4>
+            <div style={{ display: 'grid', gap: '8px' }}>
+              <select
+                value={newMenuCategory}
+                onChange={e => setNewMenuCategory(e.target.value)}
+                style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
+              >
+                {Object.entries(menuState).map(([categoryId]) => (
+                  <option key={categoryId} value={categoryId}>
+                    {categories.find(c => c.id === categoryId)?.name || categoryId}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="text"
+                placeholder="メニュー名"
+                value={newMenuName}
+                onChange={e => setNewMenuName(e.target.value)}
+                style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
+              />
+              <input
+                type="number"
+                placeholder="価格"
+                value={newMenuPrice}
+                onChange={e => setNewMenuPrice(e.target.value)}
+                style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
+              />
+              <button
+                type="button"
+                onClick={addMenuToCategory}
+                style={{
+                  padding: '8px',
+                  borderRadius: '4px',
+                  background: '#28a745',
+                  color: 'white',
+                  border: 'none',
+                  cursor: 'pointer',
+                }}
+              >
+                追加
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="action-grid">
           {Object.entries(menuState).map(([categoryId, items]) => (
@@ -733,151 +776,65 @@ function App() {
       </header>
 
       <div className="screen-body scrollable">
-        <div style={{ padding: '24px', maxWidth: '600px', margin: '0 auto' }}>
-          <div style={{ display: 'grid', gap: '16px' }}>
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700' }}>
-                カテゴリ
-              </label>
-              <select
-                value={newMenuCategory}
-                onChange={e => setNewMenuCategory(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  borderRadius: '8px',
-                  border: '1px solid #ddd',
-                  fontSize: '16px',
-                  boxSizing: 'border-box',
-                }}
-              >
-                {Object.entries(menuState).map(([categoryId]) => (
-                  <option key={categoryId} value={categoryId}>
-                    {categories.find(c => c.id === categoryId)?.name || categoryId}
-                  </option>
-                ))}
-              </select>
-            </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <div>
+            <h4 style={{ margin: '0 0 8px 0' }}>従業員管理</h4>
+            <p style={{ margin: 0 }}>現在の従業員を確認・追加できます。</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsEmployeeAddVisible((prev) => !prev)}
+            style={{
+              padding: '10px 16px',
+              borderRadius: '6px',
+              background: '#007bff',
+              color: 'white',
+              border: 'none',
+              cursor: 'pointer',
+            }}
+          >
+            {isEmployeeAddVisible ? '追加フォームを閉じる' : '従業員を追加'}
+          </button>
+        </div>
 
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700' }}>
-                メニュー名
-              </label>
+        {isEmployeeAddVisible && (
+          <div style={{ padding: '16px', marginBottom: '16px', background: '#f5f5f5', borderRadius: '8px' }}>
+            <h4 style={{ margin: '0 0 12px 0' }}>従業員追加</h4>
+            <div style={{ display: 'grid', gap: '8px' }}>
               <input
                 type="text"
-                placeholder="例: 唐揚げ"
-                value={newMenuName}
-                onChange={e => setNewMenuName(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  borderRadius: '8px',
-                  border: '1px solid #ddd',
-                  fontSize: '16px',
-                  boxSizing: 'border-box',
-                }}
+                placeholder="従業員名"
+                value={newEmployeeName}
+                onChange={e => setNewEmployeeName(e.target.value)}
+                style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
               />
-            </div>
-
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700' }}>
-                価格（円）
-              </label>
-              <input
-                type="number"
-                placeholder="例: 580"
-                value={newMenuPrice}
-                onChange={e => setNewMenuPrice(e.target.value)}
+              <select
+                value={newEmployeeRole}
+                onChange={e => setNewEmployeeRole(e.target.value)}
+                style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
+              >
+                <option value="店長">店長</option>
+                <option value="ホール">ホール</option>
+                <option value="キッチン">キッチン</option>
+                <option value="洗い場">洗い場</option>
+              </select>
+              <button
+                type="button"
+                onClick={addNewEmployee}
                 style={{
-                  width: '100%',
-                  padding: '12px',
-                  borderRadius: '8px',
-                  border: '1px solid #ddd',
-                  fontSize: '16px',
-                  boxSizing: 'border-box',
+                  padding: '8px',
+                  borderRadius: '4px',
+                  background: '#28a745',
+                  color: 'white',
+                  border: 'none',
+                  cursor: 'pointer',
                 }}
-              />
+              >
+                追加
+              </button>
             </div>
-
-            <button
-              type="button"
-              onClick={addMenuToCategory}
-              style={{
-                padding: '14px',
-                borderRadius: '8px',
-                background: '#28a745',
-                color: 'white',
-                border: 'none',
-                cursor: 'pointer',
-                fontWeight: '700',
-                fontSize: '16px',
-                marginTop: '8px',
-              }}
-            >
-              追加する
-            </button>
           </div>
-        </div>
-      </div>
-    </section>
-  );
-
-  const renderEmployeeManagement = () => (
-    <section className="screen list-screen">
-      <header className="screen-header sticky employee-header">
-        <button
-          type="button"
-          className="back-button text-button"
-          onClick={() => setScreen('store')}
-        >
-          ← 戻る
-        </button>
-        <div>
-          <p className="eyebrow">管理画面</p>
-          <h2>従業員管理</h2>
-        </div>
-        <button type="button" className="user-icon-button" onClick={handleLogout}>
-          👤
-        </button>
-      </header>
-
-      <div className="screen-body scrollable">
-        <div style={{ padding: '16px', marginBottom: '16px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-          <button
-            type="button"
-            onClick={() => setScreen('addEmployee')}
-            style={{
-              width: '100%',
-              padding: '12px',
-              borderRadius: '8px',
-              background: '#28a745',
-              color: 'white',
-              border: 'none',
-              cursor: 'pointer',
-              fontWeight: '700',
-              fontSize: '16px',
-            }}
-          >
-            従業員追加
-          </button>
-          <button
-            type="button"
-            onClick={() => setScreen('deleteEmployee')}
-            style={{
-              width: '100%',
-              padding: '12px',
-              borderRadius: '8px',
-              background: '#dc3545',
-              color: 'white',
-              border: 'none',
-              cursor: 'pointer',
-              fontWeight: '700',
-              fontSize: '16px',
-            }}
-          >
-            従業員削除
-          </button>
-        </div>
+        )}
 
         <div className="action-grid">
           {employees.map(employee => (
