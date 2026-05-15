@@ -146,6 +146,39 @@ const menuItems = {
   ],
 };
 
+const initialOrders = [
+  {
+    id: 'ORD-001',
+    table: 5,
+    items: [
+      { name: 'ねぎま串', quantity: 2, status: '調理中' },
+      { name: '生ビール', quantity: 1, status: '提供済み' },
+    ],
+    total: 1220,
+    createdAt: new Date(Date.now() - 300000),
+  },
+  {
+    id: 'ORD-002',
+    table: 3,
+    items: [
+      { name: 'つくね串', quantity: 1, status: '待機中' },
+      { name: 'ハイボール', quantity: 2, status: '調理中' },
+    ],
+    total: 1420,
+    createdAt: new Date(Date.now() - 120000),
+  },
+];
+
+const initialTables = [
+  { id: 1, name: 'テーブル1', status: '空席', qrCode: 'QR001', capacity: 4 },
+  { id: 2, name: 'テーブル2', status: '使用中', qrCode: 'QR002', capacity: 4 },
+  { id: 3, name: 'テーブル3', status: '使用中', qrCode: 'QR003', capacity: 6 },
+  { id: 4, name: 'テーブル4', status: '空席', qrCode: 'QR004', capacity: 2 },
+  { id: 5, name: 'テーブル5', status: '使用中', qrCode: 'QR005', capacity: 4 },
+];
+
+const orderStatusOptions = ['待機中', '調理中', '提供済み'];
+
 function formatPrice(price) {
   return price === 0 ? '無料' : `¥${price.toLocaleString()}`;
 }
@@ -168,36 +201,8 @@ function App() {
   const [lastOrder, setLastOrder] = useState(null);
 
   // 従業員管理用のデータ
-  const [orders, setOrders] = useState([
-    {
-      id: 'ORD-001',
-      table: 5,
-      items: [
-        { name: 'ねぎま串', quantity: 2, status: '調理中' },
-        { name: '生ビール', quantity: 1, status: '提供済み' },
-      ],
-      total: 1220,
-      createdAt: new Date(Date.now() - 300000),
-    },
-    {
-      id: 'ORD-002',
-      table: 3,
-      items: [
-        { name: 'つくね串', quantity: 1, status: '待機中' },
-        { name: 'ハイボール', quantity: 2, status: '調理中' },
-      ],
-      total: 1420,
-      createdAt: new Date(Date.now() - 120000),
-    },
-  ]);
-
-  const [tables, setTables] = useState([
-    { id: 1, name: 'テーブル1', status: '空席', qrCode: 'QR001', capacity: 4 },
-    { id: 2, name: 'テーブル2', status: '使用中', qrCode: 'QR002', capacity: 4 },
-    { id: 3, name: 'テーブル3', status: '使用中', qrCode: 'QR003', capacity: 6 },
-    { id: 4, name: 'テーブル4', status: '空席', qrCode: 'QR004', capacity: 2 },
-    { id: 5, name: 'テーブル5', status: '使用中', qrCode: 'QR005', capacity: 4 },
-  ]);
+  const [orders, setOrders] = useState(() => initialOrders);
+  const [tables, setTables] = useState(() => initialTables);
 
   const [menuState, setMenuState] = useState(menuItems);
 
@@ -310,12 +315,12 @@ function App() {
   };
 
   const updateOrderStatus = (orderId, itemIndex, newStatus) => {
-    setOrders(
-      orders.map(order =>
+    setOrders((prev) =>
+      prev.map((order) =>
         order.id === orderId
           ? {
               ...order,
-              items: order.items.map((item, index) =>
+              items: (order.items || []).map((item, index) =>
                 index === itemIndex ? { ...item, status: newStatus } : item
               ),
             }
@@ -325,7 +330,7 @@ function App() {
   };
 
   const updateTableStatus = (tableId, newStatus) => {
-    setTables(tables.map(table => (table.id === tableId ? { ...table, status: newStatus } : table)));
+    setTables((prev) => prev.map((table) => (table.id === tableId ? { ...table, status: newStatus } : table)));
   };
 
   const generateQRCode = tableId => {
@@ -333,17 +338,17 @@ function App() {
   };
 
   const toggleMenuStatus = (categoryId, itemId) => {
-    setMenuState(prev => ({
-      ...prev,
-      [categoryId]: prev[categoryId].map(i =>
-        i.id === itemId
-          ? {
-              ...i,
-              status: i.status === '販売中' ? '販売停止' : '販売中',
-            }
-          : i
-      ),
-    }));
+    setMenuState((prev) => {
+      const list = prev[categoryId] ?? [];
+      return {
+        ...prev,
+        [categoryId]: list.map((i) =>
+          i.id === itemId
+            ? { ...i, status: i.status === '販売中' ? '販売停止' : '販売中' }
+            : i
+        ),
+      };
+    });
   };
 
   const toggleEmployeeStatus = employeeId => {
@@ -564,6 +569,138 @@ function App() {
             <h3>店舗管理</h3>
             <p>店舗情報を確認します。</p>
           </button>
+        </div>
+      </div>
+    </section>
+  );
+
+  const renderOrders = () => (
+    <section className="screen list-screen">
+      <header className="screen-header sticky employee-header">
+        <button
+          type="button"
+          className="back-button text-button"
+          onClick={() => setScreen('employeeHome')}
+        >
+          ← 戻る
+        </button>
+        <div>
+          <p className="eyebrow">管理画面</p>
+          <h2>注文受付 / 注文管理</h2>
+        </div>
+        <button type="button" className="user-icon-button" onClick={handleLogout}>
+          👤
+        </button>
+      </header>
+
+      <div className="screen-body scrollable">
+        <div style={{ display: 'grid', gap: '12px' }}>
+          {orders.map((order) => (
+            <div key={order.id} style={{ padding: '12px', border: '1px solid #ddd', borderRadius: '8px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <h3 style={{ margin: 0 }}>{order.id}</h3>
+                  <p style={{ margin: '4px 0 0 0' }}>テーブル: {order.table}</p>
+                  <p style={{ margin: '4px 0 0 0' }}>
+                    作成: {order.createdAt?.toLocaleString('ja-JP')}
+                  </p>
+                </div>
+                <strong>¥{order.total.toLocaleString()}</strong>
+              </div>
+
+              <div style={{ marginTop: '12px', display: 'grid', gap: '8px' }}>
+                {order.items.map((item, index) => (
+                  <div key={`${order.id}-${index}`} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <div style={{ flex: 1 }}>
+                      <span>{item.name}</span>
+                      <span style={{ marginLeft: '8px' }}>×{item.quantity}</span>
+                    </div>
+                    <select
+                      value={item.status}
+                      onChange={(event) => updateOrderStatus(order.id, index, event.target.value)}
+                      style={{ padding: '6px 8px', borderRadius: '6px', border: '1px solid #ddd' }}
+                    >
+                      {orderStatusOptions.map((status) => (
+                        <option key={status} value={status}>
+                          {status}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+
+  const renderSeats = () => (
+    <section className="screen list-screen">
+      <header className="screen-header sticky employee-header">
+        <button
+          type="button"
+          className="back-button text-button"
+          onClick={() => setScreen('employeeHome')}
+        >
+          ← 戻る
+        </button>
+        <div>
+          <p className="eyebrow">管理画面</p>
+          <h2>座席管理</h2>
+        </div>
+        <button type="button" className="user-icon-button" onClick={handleLogout}>
+          👤
+        </button>
+      </header>
+
+      <div className="screen-body scrollable">
+        <div style={{ display: 'grid', gap: '12px' }}>
+          {tables.map((table) => {
+            const nextStatus = table.status === '空席' ? '使用中' : '空席';
+            return (
+              <div key={table.id} style={{ padding: '12px', border: '1px solid #ddd', borderRadius: '8px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <h3 style={{ margin: 0 }}>{table.name}</h3>
+                    <p style={{ margin: '4px 0 0 0' }}>ステータス: {table.status}</p>
+                    <p style={{ margin: '4px 0 0 0' }}>人数: {table.capacity}名</p>
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button
+                      type="button"
+                      onClick={() => updateTableStatus(table.id, nextStatus)}
+                      style={{
+                        padding: '8px 12px',
+                        borderRadius: '6px',
+                        background: nextStatus === '使用中' ? '#dc3545' : '#28a745',
+                        color: 'white',
+                        border: 'none',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {nextStatus}にする
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => generateQRCode(table.id)}
+                      style={{
+                        padding: '8px 12px',
+                        borderRadius: '6px',
+                        background: '#007bff',
+                        color: 'white',
+                        border: 'none',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      QR発行
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>
@@ -1169,31 +1306,6 @@ function App() {
     </section>
   );
 
-  const renderPlaceholderScreen = (title, description) => (
-    <section className="screen list-screen">
-      <header className="screen-header sticky employee-header">
-        <button type="button" className="back-button text-button" onClick={() => setScreen('employeeHome')}>
-          ← 戻る
-        </button>
-        <div>
-          <p className="eyebrow">管理画面</p>
-          <h2>{title}</h2>
-        </div>
-        <button type="button" className="user-icon-button" onClick={handleLogout}>
-          👤
-        </button>
-      </header>
-
-      <div className="screen-body scrollable">
-        <div className="placeholder-card">
-          <h3>{title}</h3>
-          <p>{description}</p>
-          <p>バックエンド連携は後ほど追加します。</p>
-        </div>
-      </div>
-    </section>
-  );
-
   const renderWelcome = () => (
     <section className="screen welcome-screen">
       <div className="hero-banner">
@@ -1554,13 +1666,8 @@ function App() {
       <section className="app-shell" aria-label="従業員および顧客画面">
         {screen === 'login' && renderLogin()}
         {screen === 'employeeHome' && renderEmployeeHome()}
-        {screen === 'orders' &&
-          renderPlaceholderScreen(
-            '注文受付 / 注文管理',
-            'ここから注文の受付と管理を行います。'
-          )}
-        {screen === 'seats' &&
-          renderPlaceholderScreen('座席管理', 'ここから座席の状態を確認・変更できます。')}
+        {screen === 'orders' && renderOrders()}
+        {screen === 'seats' && renderSeats()}
         {screen === 'store' && renderStoreManagement()}
         {screen === 'menuManagement' && renderMenuManagement()}
         {screen === 'addMenu' && renderAddMenu()}
