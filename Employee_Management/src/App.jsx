@@ -218,6 +218,11 @@ function App() {
   const [newEmployeeRole, setNewEmployeeRole] = useState('ホール');
   const [isEmployeeAddVisible, setIsEmployeeAddVisible] = useState(false);
 
+  // 削除確認および削除用の入力状態
+  const [deleteConfirmData, setDeleteConfirmData] = useState(null);
+  const [deleteEmployeeId, setDeleteEmployeeId] = useState('');
+  const [searchedEmployeeForDelete, setSearchedEmployeeForDelete] = useState(null);
+
   useEffect(() => {
     if (screen !== 'complete') {
       return undefined;
@@ -749,6 +754,108 @@ function App() {
                   </div>
                 </div>
               ))}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+
+  const renderEmployeeManagement = () => (
+    <section className="screen list-screen">
+      <header className="screen-header sticky employee-header">
+        <button
+          type="button"
+          className="back-button text-button"
+          onClick={() => setScreen('store')}
+        >
+          ← 戻る
+        </button>
+        <div>
+          <p className="eyebrow">管理画面</p>
+          <h2>従業員管理</h2>
+        </div>
+        <button type="button" className="user-icon-button" onClick={handleLogout}>
+          👤
+        </button>
+      </header>
+
+      <div className="screen-body scrollable">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <div>
+            <h4 style={{ margin: '0 0 8px 0' }}>従業員一覧</h4>
+            <p style={{ margin: 0 }}>従業員の状態を確認・編集できます。</p>
+          </div>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              type="button"
+              onClick={() => setScreen('addEmployee')}
+              style={{
+                padding: '10px 16px',
+                borderRadius: '6px',
+                background: '#007bff',
+                color: 'white',
+                border: 'none',
+                cursor: 'pointer',
+              }}
+            >
+              従業員を追加
+            </button>
+            <button
+              type="button"
+              onClick={() => setScreen('deleteEmployee')}
+              style={{
+                padding: '10px 16px',
+                borderRadius: '6px',
+                background: '#ffc107',
+                color: '#333',
+                border: 'none',
+                cursor: 'pointer',
+              }}
+            >
+              削除画面へ
+            </button>
+          </div>
+        </div>
+
+        <div style={{ display: 'grid', gap: '12px' }}>
+          {employees.map(emp => (
+            <div key={emp.id} style={{ padding: '12px', border: '1px solid #ddd', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <h3 style={{ margin: 0 }}>{emp.name}</h3>
+                <p style={{ margin: '4px 0 0 0' }}>ID: {emp.empId} ・ {emp.role}</p>
+                <p style={{ margin: '4px 0 0 0' }}>ステータス: {emp.status}</p>
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  type="button"
+                  onClick={() => toggleEmployeeStatus(emp.id)}
+                  style={{
+                    padding: '8px 12px',
+                    borderRadius: '6px',
+                    background: emp.status === '出勤中' ? '#dc3545' : '#28a745',
+                    color: 'white',
+                    border: 'none',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {emp.status === '出勤中' ? '退勤へ' : '出勤へ'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => confirmDeleteEmployee(emp.id, emp.name)}
+                  style={{
+                    padding: '8px 12px',
+                    borderRadius: '6px',
+                    background: '#dc3545',
+                    color: 'white',
+                    border: 'none',
+                    cursor: 'pointer',
+                  }}
+                >
+                  削除
+                </button>
+              </div>
             </div>
           ))}
         </div>
