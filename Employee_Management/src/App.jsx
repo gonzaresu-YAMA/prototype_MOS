@@ -202,9 +202,9 @@ function App() {
   const [menuState, setMenuState] = useState(menuItems);
 
   const [employees, setEmployees] = useState([
-    { id: 1, name: '田中太郎', role: '店長', empId: 'EMP001', status: '在籍中' },
-    { id: 2, name: '鈴木花子', role: 'ホール', empId: 'EMP002', status: '在籍中' },
-    { id: 3, name: '佐藤次郎', role: 'キッチン', empId: 'EMP003', status: '在籍中' },
+    { id: 1, name: '田中太郎', role: '店長', empId: 'EMP001', status: '出勤中' },
+    { id: 2, name: '鈴木花子', role: 'ホール', empId: 'EMP002', status: '出勤中' },
+    { id: 3, name: '佐藤次郎', role: 'キッチン', empId: 'EMP003', status: '出勤中' },
   ]);
 
   // メニュー追加用フォーム
@@ -215,6 +215,13 @@ function App() {
   // 従業員追加用フォーム
   const [newEmployeeName, setNewEmployeeName] = useState('');
   const [newEmployeeRole, setNewEmployeeRole] = useState('ホール');
+
+  // 削除確認用
+  const [deleteConfirmData, setDeleteConfirmData] = useState(null);
+
+  // 従業員削除用フォーム
+  const [deleteEmployeeId, setDeleteEmployeeId] = useState('');
+  const [searchedEmployeeForDelete, setSearchedEmployeeForDelete] = useState(null);
 
   useEffect(() => {
     if (screen !== 'complete') {
@@ -345,7 +352,7 @@ function App() {
         e.id === employeeId
           ? {
               ...e,
-              status: e.status === '在籍中' ? '退職' : '在籍中',
+              status: e.status === '出勤中' ? '退勤' : '出勤中',
             }
           : e
       )
@@ -381,6 +388,7 @@ function App() {
 
     setNewMenuName('');
     setNewMenuPrice('');
+    setScreen('menuManagement');
   };
 
   const deleteMenuFromCategory = (categoryId, itemId) => {
@@ -406,16 +414,76 @@ function App() {
         name: newEmployeeName,
         role: newEmployeeRole,
         empId: newEmpId,
-        status: '在籍中',
+        status: '出勤中',
       },
     ]);
 
     setNewEmployeeName('');
     setNewEmployeeRole('ホール');
+    setScreen('employeeManagement');
   };
 
   const deleteEmployee = employeeId => {
     setEmployees(prev => prev.filter(e => e.id !== employeeId));
+  };
+
+  const searchEmployeeForDelete = (idInput) => {
+    const found = employees.find(e => e.empId === idInput);
+    setSearchedEmployeeForDelete(found || null);
+  };
+
+  const confirmDeleteEmployeeBySearch = (employeeId, employeeName) => {
+    setDeleteConfirmData({
+      type: 'employee',
+      employeeId,
+      employeeName,
+    });
+  };
+
+  const executeDeleteAndReturn = () => {
+    if (!deleteConfirmData) return;
+
+    if (deleteConfirmData.type === 'employee') {
+      deleteEmployee(deleteConfirmData.employeeId);
+    }
+
+    setDeleteConfirmData(null);
+    setDeleteEmployeeId('');
+    setSearchedEmployeeForDelete(null);
+    setScreen('employeeManagement');
+  };
+
+  const confirmDeleteMenu = (categoryId, itemId, itemName) => {
+    setDeleteConfirmData({
+      type: 'menu',
+      categoryId,
+      itemId,
+      itemName,
+    });
+  };
+
+  const confirmDeleteEmployee = (employeeId, employeeName) => {
+    setDeleteConfirmData({
+      type: 'employee',
+      employeeId,
+      employeeName,
+    });
+  };
+
+  const executeDelete = () => {
+    if (!deleteConfirmData) return;
+
+    if (deleteConfirmData.type === 'menu') {
+      deleteMenuFromCategory(deleteConfirmData.categoryId, deleteConfirmData.itemId);
+    } else if (deleteConfirmData.type === 'employee') {
+      deleteEmployee(deleteConfirmData.employeeId);
+    }
+
+    setDeleteConfirmData(null);
+  };
+
+  const cancelDelete = () => {
+    setDeleteConfirmData(null);
   };
 
   const renderLogin = () => (
@@ -564,49 +632,24 @@ function App() {
       </header>
 
       <div className="screen-body scrollable">
-        <div style={{ padding: '16px', marginBottom: '16px', background: '#f5f5f5', borderRadius: '8px' }}>
-          <h4 style={{ margin: '0 0 12px 0' }}>メニュー追加</h4>
-          <div style={{ display: 'grid', gap: '8px' }}>
-            <select
-              value={newMenuCategory}
-              onChange={e => setNewMenuCategory(e.target.value)}
-              style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
-            >
-              {Object.entries(menuState).map(([categoryId]) => (
-                <option key={categoryId} value={categoryId}>
-                  {categories.find(c => c.id === categoryId)?.name || categoryId}
-                </option>
-              ))}
-            </select>
-            <input
-              type="text"
-              placeholder="メニュー名"
-              value={newMenuName}
-              onChange={e => setNewMenuName(e.target.value)}
-              style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
-            />
-            <input
-              type="number"
-              placeholder="価格"
-              value={newMenuPrice}
-              onChange={e => setNewMenuPrice(e.target.value)}
-              style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
-            />
-            <button
-              type="button"
-              onClick={addMenuToCategory}
-              style={{
-                padding: '8px',
-                borderRadius: '4px',
-                background: '#28a745',
-                color: 'white',
-                border: 'none',
-                cursor: 'pointer',
-              }}
-            >
-              追加
-            </button>
-          </div>
+        <div style={{ padding: '16px', marginBottom: '16px' }}>
+          <button
+            type="button"
+            onClick={() => setScreen('addMenu')}
+            style={{
+              width: '100%',
+              padding: '12px',
+              borderRadius: '8px',
+              background: '#28a745',
+              color: 'white',
+              border: 'none',
+              cursor: 'pointer',
+              fontWeight: '700',
+              fontSize: '16px',
+            }}
+          >
+            新しいメニューを追加
+          </button>
         </div>
 
         <div className="action-grid">
@@ -646,16 +689,16 @@ function App() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => deleteMenuFromCategory(categoryId, item.id)}
+                      onClick={() => confirmDeleteMenu(categoryId, item.id, item.name)}
                       style={{
-                        flex: 1,
-                        padding: '4px 8px',
+                        padding: '4px 6px',
                         borderRadius: '4px',
                         background: '#6c757d',
                         color: 'white',
                         border: 'none',
                         cursor: 'pointer',
-                        fontSize: '12px',
+                        fontSize: '10px',
+                        minWidth: '32px',
                       }}
                     >
                       削除
@@ -665,6 +708,115 @@ function App() {
               ))}
             </div>
           ))}
+        </div>
+      </div>
+    </section>
+  );
+
+  const renderAddMenu = () => (
+    <section className="screen list-screen">
+      <header className="screen-header sticky employee-header">
+        <button
+          type="button"
+          className="back-button text-button"
+          onClick={() => setScreen('menuManagement')}
+        >
+          ← 戻る
+        </button>
+        <div>
+          <p className="eyebrow">管理画面</p>
+          <h2>メニュー追加</h2>
+        </div>
+        <button type="button" className="user-icon-button" onClick={handleLogout}>
+          👤
+        </button>
+      </header>
+
+      <div className="screen-body scrollable">
+        <div style={{ padding: '24px', maxWidth: '600px', margin: '0 auto' }}>
+          <div style={{ display: 'grid', gap: '16px' }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700' }}>
+                カテゴリ
+              </label>
+              <select
+                value={newMenuCategory}
+                onChange={e => setNewMenuCategory(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  border: '1px solid #ddd',
+                  fontSize: '16px',
+                  boxSizing: 'border-box',
+                }}
+              >
+                {Object.entries(menuState).map(([categoryId]) => (
+                  <option key={categoryId} value={categoryId}>
+                    {categories.find(c => c.id === categoryId)?.name || categoryId}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700' }}>
+                メニュー名
+              </label>
+              <input
+                type="text"
+                placeholder="例: 唐揚げ"
+                value={newMenuName}
+                onChange={e => setNewMenuName(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  border: '1px solid #ddd',
+                  fontSize: '16px',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700' }}>
+                価格（円）
+              </label>
+              <input
+                type="number"
+                placeholder="例: 580"
+                value={newMenuPrice}
+                onChange={e => setNewMenuPrice(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  border: '1px solid #ddd',
+                  fontSize: '16px',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
+
+            <button
+              type="button"
+              onClick={addMenuToCategory}
+              style={{
+                padding: '14px',
+                borderRadius: '8px',
+                background: '#28a745',
+                color: 'white',
+                border: 'none',
+                cursor: 'pointer',
+                fontWeight: '700',
+                fontSize: '16px',
+                marginTop: '8px',
+              }}
+            >
+              追加する
+            </button>
+          </div>
         </div>
       </div>
     </section>
@@ -690,41 +842,41 @@ function App() {
       </header>
 
       <div className="screen-body scrollable">
-        <div style={{ padding: '16px', marginBottom: '16px', background: '#f5f5f5', borderRadius: '8px' }}>
-          <h4 style={{ margin: '0 0 12px 0' }}>従業員追加</h4>
-          <div style={{ display: 'grid', gap: '8px' }}>
-            <input
-              type="text"
-              placeholder="従業員名"
-              value={newEmployeeName}
-              onChange={e => setNewEmployeeName(e.target.value)}
-              style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
-            />
-            <select
-              value={newEmployeeRole}
-              onChange={e => setNewEmployeeRole(e.target.value)}
-              style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
-            >
-              <option value="店長">店長</option>
-              <option value="ホール">ホール</option>
-              <option value="キッチン">キッチン</option>
-              <option value="洗い場">洗い場</option>
-            </select>
-            <button
-              type="button"
-              onClick={addNewEmployee}
-              style={{
-                padding: '8px',
-                borderRadius: '4px',
-                background: '#28a745',
-                color: 'white',
-                border: 'none',
-                cursor: 'pointer',
-              }}
-            >
-              追加
-            </button>
-          </div>
+        <div style={{ padding: '16px', marginBottom: '16px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+          <button
+            type="button"
+            onClick={() => setScreen('addEmployee')}
+            style={{
+              width: '100%',
+              padding: '12px',
+              borderRadius: '8px',
+              background: '#28a745',
+              color: 'white',
+              border: 'none',
+              cursor: 'pointer',
+              fontWeight: '700',
+              fontSize: '16px',
+            }}
+          >
+            従業員追加
+          </button>
+          <button
+            type="button"
+            onClick={() => setScreen('deleteEmployee')}
+            style={{
+              width: '100%',
+              padding: '12px',
+              borderRadius: '8px',
+              background: '#dc3545',
+              color: 'white',
+              border: 'none',
+              cursor: 'pointer',
+              fontWeight: '700',
+              fontSize: '16px',
+            }}
+          >
+            従業員削除
+          </button>
         </div>
 
         <div className="action-grid">
@@ -739,37 +891,215 @@ function App() {
                   type="button"
                   onClick={() => toggleEmployeeStatus(employee.id)}
                   style={{
-                    flex: 1,
+                    width: '100%',
                     padding: '4px 8px',
                     borderRadius: '4px',
-                    background: employee.status === '在籍中' ? '#dc3545' : '#28a745',
+                    background: employee.status === '出勤中' ? '#dc3545' : '#28a745',
                     color: 'white',
                     border: 'none',
                     cursor: 'pointer',
                     fontSize: '12px',
                   }}
                 >
-                  {employee.status === '在籍中' ? '退職' : '再開'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => deleteEmployee(employee.id)}
-                  style={{
-                    flex: 1,
-                    padding: '4px 8px',
-                    borderRadius: '4px',
-                    background: '#6c757d',
-                    color: 'white',
-                    border: 'none',
-                    cursor: 'pointer',
-                    fontSize: '12px',
-                  }}
-                >
-                  削除
+                  {employee.status === '出勤中' ? '退勤' : '出勤'}
                 </button>
               </div>
             </div>
           ))}
+        </div>
+      </div>
+    </section>
+  );
+
+  const renderAddEmployee = () => (
+    <section className="screen list-screen">
+      <header className="screen-header sticky employee-header">
+        <button
+          type="button"
+          className="back-button text-button"
+          onClick={() => setScreen('employeeManagement')}
+        >
+          ← 戻る
+        </button>
+        <div>
+          <p className="eyebrow">管理画面</p>
+          <h2>従業員追加</h2>
+        </div>
+        <button type="button" className="user-icon-button" onClick={handleLogout}>
+          👤
+        </button>
+      </header>
+
+      <div className="screen-body scrollable">
+        <div style={{ padding: '24px', maxWidth: '600px', margin: '0 auto' }}>
+          <div style={{ display: 'grid', gap: '16px' }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700' }}>
+                従業員名
+              </label>
+              <input
+                type="text"
+                placeholder="例: 山田太郎"
+                value={newEmployeeName}
+                onChange={e => setNewEmployeeName(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  border: '1px solid #ddd',
+                  fontSize: '16px',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700' }}>
+                役職
+              </label>
+              <select
+                value={newEmployeeRole}
+                onChange={e => setNewEmployeeRole(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  border: '1px solid #ddd',
+                  fontSize: '16px',
+                  boxSizing: 'border-box',
+                }}
+              >
+                <option value="店長">店長</option>
+                <option value="ホール">ホール</option>
+                <option value="キッチン">キッチン</option>
+                <option value="洗い場">洗い場</option>
+              </select>
+            </div>
+
+            <button
+              type="button"
+              onClick={addNewEmployee}
+              style={{
+                padding: '14px',
+                borderRadius: '8px',
+                background: '#28a745',
+                color: 'white',
+                border: 'none',
+                cursor: 'pointer',
+                fontWeight: '700',
+                fontSize: '16px',
+                marginTop: '8px',
+              }}
+            >
+              追加する
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+
+  const renderDeleteEmployee = () => (
+    <section className="screen list-screen">
+      <header className="screen-header sticky employee-header">
+        <button
+          type="button"
+          className="back-button text-button"
+          onClick={() => {
+            setScreen('employeeManagement');
+            setDeleteEmployeeId('');
+            setSearchedEmployeeForDelete(null);
+          }}
+        >
+          ← 戻る
+        </button>
+        <div>
+          <p className="eyebrow">管理画面</p>
+          <h2>従業員削除</h2>
+        </div>
+        <button type="button" className="user-icon-button" onClick={handleLogout}>
+          👤
+        </button>
+      </header>
+
+      <div className="screen-body scrollable">
+        <div style={{ padding: '24px', maxWidth: '600px', margin: '0 auto' }}>
+          <div style={{ display: 'grid', gap: '16px' }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700' }}>
+                従業員ID (EMP001など)
+              </label>
+              <input
+                type="text"
+                placeholder="例: EMP001"
+                value={deleteEmployeeId}
+                onChange={e => {
+                  setDeleteEmployeeId(e.target.value);
+                  if (e.target.value.trim()) {
+                    searchEmployeeForDelete(e.target.value);
+                  } else {
+                    setSearchedEmployeeForDelete(null);
+                  }
+                }}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  border: '1px solid #ddd',
+                  fontSize: '16px',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
+
+            {searchedEmployeeForDelete && (
+              <div style={{
+                padding: '16px',
+                background: '#f9f9f9',
+                borderRadius: '8px',
+                border: '2px solid #007bff',
+              }}>
+                <h3 style={{ marginTop: 0, marginBottom: '12px' }}>削除対象の従業員</h3>
+                <div style={{ display: 'grid', gap: '8px' }}>
+                  <p><strong>名前:</strong> {searchedEmployeeForDelete.name}</p>
+                  <p><strong>ID:</strong> {searchedEmployeeForDelete.empId}</p>
+                  <p><strong>役職:</strong> {searchedEmployeeForDelete.role}</p>
+                  <p><strong>ステータス:</strong> {searchedEmployeeForDelete.status}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => confirmDeleteEmployeeBySearch(searchedEmployeeForDelete.id, searchedEmployeeForDelete.name)}
+                  style={{
+                    width: '100%',
+                    marginTop: '12px',
+                    padding: '12px',
+                    borderRadius: '8px',
+                    background: '#dc3545',
+                    color: 'white',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontWeight: '700',
+                    fontSize: '16px',
+                  }}
+                >
+                  この従業員を削除する
+                </button>
+              </div>
+            )}
+
+            {deleteEmployeeId.trim() && !searchedEmployeeForDelete && (
+              <div style={{
+                padding: '16px',
+                background: '#fff3cd',
+                borderRadius: '8px',
+                border: '2px solid #ffc107',
+              }}>
+                <p style={{ margin: 0, color: '#856404' }}>
+                  該当する従業員が見つかりません
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </section>
@@ -1169,13 +1499,89 @@ function App() {
           renderPlaceholderScreen('座席管理', 'ここから座席の状態を確認・変更できます。')}
         {screen === 'store' && renderStoreManagement()}
         {screen === 'menuManagement' && renderMenuManagement()}
+        {screen === 'addMenu' && renderAddMenu()}
         {screen === 'employeeManagement' && renderEmployeeManagement()}
+        {screen === 'addEmployee' && renderAddEmployee()}
+        {screen === 'deleteEmployee' && renderDeleteEmployee()}
         {screen === 'welcome' && renderWelcome()}
         {screen === 'home' && renderHome()}
         {screen === 'category' && renderCategory()}
         {screen === 'cart' && renderCart()}
         {screen === 'history' && renderHistory()}
         {screen === 'complete' && renderComplete()}
+
+        {/* 削除確認ダイアログ */}
+        {deleteConfirmData && (
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(0, 0, 0, 0.5)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 1000,
+            }}
+          >
+            <div
+              style={{
+                background: 'white',
+                borderRadius: '12px',
+                padding: '24px',
+                maxWidth: '400px',
+                width: '90%',
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+              }}
+            >
+              <h3 style={{ marginTop: 0 }}>確認</h3>
+              <p>
+                {deleteConfirmData.type === 'menu'
+                  ? `「${deleteConfirmData.itemName}」を削除してもよろしいですか？`
+                  : `「${deleteConfirmData.employeeName}」を削除してもよろしいですか？`}
+              </p>
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+                <button
+                  type="button"
+                  onClick={cancelDelete}
+                  style={{
+                    padding: '10px 16px',
+                    borderRadius: '6px',
+                    background: '#e9ecef',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontWeight: '600',
+                  }}
+                >
+                  キャンセル
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (deleteConfirmData.type === 'employee') {
+                      executeDeleteAndReturn();
+                    } else {
+                      executeDelete();
+                    }
+                  }}
+                  style={{
+                    padding: '10px 16px',
+                    borderRadius: '6px',
+                    background: '#dc3545',
+                    color: 'white',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontWeight: '600',
+                  }}
+                >
+                  削除する
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </section>
     </main>
   );
