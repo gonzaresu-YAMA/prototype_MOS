@@ -216,6 +216,7 @@ function App() {
   // 従業員追加用フォーム
   const [newEmployeeName, setNewEmployeeName] = useState('');
   const [newEmployeeRole, setNewEmployeeRole] = useState('ホール');
+  const [isEmployeeAddVisible, setIsEmployeeAddVisible] = useState(false);
 
   useEffect(() => {
     if (screen !== 'complete') {
@@ -714,42 +715,65 @@ function App() {
       </header>
 
       <div className="screen-body scrollable">
-        <div style={{ padding: '16px', marginBottom: '16px', background: '#f5f5f5', borderRadius: '8px' }}>
-          <h4 style={{ margin: '0 0 12px 0' }}>従業員追加</h4>
-          <div style={{ display: 'grid', gap: '8px' }}>
-            <input
-              type="text"
-              placeholder="従業員名"
-              value={newEmployeeName}
-              onChange={e => setNewEmployeeName(e.target.value)}
-              style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
-            />
-            <select
-              value={newEmployeeRole}
-              onChange={e => setNewEmployeeRole(e.target.value)}
-              style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
-            >
-              <option value="店長">店長</option>
-              <option value="ホール">ホール</option>
-              <option value="キッチン">キッチン</option>
-              <option value="洗い場">洗い場</option>
-            </select>
-            <button
-              type="button"
-              onClick={addNewEmployee}
-              style={{
-                padding: '8px',
-                borderRadius: '4px',
-                background: '#28a745',
-                color: 'white',
-                border: 'none',
-                cursor: 'pointer',
-              }}
-            >
-              追加
-            </button>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <div>
+            <h4 style={{ margin: '0 0 8px 0' }}>従業員管理</h4>
+            <p style={{ margin: 0 }}>現在の従業員を確認・追加できます。</p>
           </div>
+          <button
+            type="button"
+            onClick={() => setIsEmployeeAddVisible((prev) => !prev)}
+            style={{
+              padding: '10px 16px',
+              borderRadius: '6px',
+              background: '#007bff',
+              color: 'white',
+              border: 'none',
+              cursor: 'pointer',
+            }}
+          >
+            {isEmployeeAddVisible ? '追加フォームを閉じる' : '従業員を追加'}
+          </button>
         </div>
+
+        {isEmployeeAddVisible && (
+          <div style={{ padding: '16px', marginBottom: '16px', background: '#f5f5f5', borderRadius: '8px' }}>
+            <h4 style={{ margin: '0 0 12px 0' }}>従業員追加</h4>
+            <div style={{ display: 'grid', gap: '8px' }}>
+              <input
+                type="text"
+                placeholder="従業員名"
+                value={newEmployeeName}
+                onChange={e => setNewEmployeeName(e.target.value)}
+                style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
+              />
+              <select
+                value={newEmployeeRole}
+                onChange={e => setNewEmployeeRole(e.target.value)}
+                style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
+              >
+                <option value="店長">店長</option>
+                <option value="ホール">ホール</option>
+                <option value="キッチン">キッチン</option>
+                <option value="洗い場">洗い場</option>
+              </select>
+              <button
+                type="button"
+                onClick={addNewEmployee}
+                style={{
+                  padding: '8px',
+                  borderRadius: '4px',
+                  background: '#28a745',
+                  color: 'white',
+                  border: 'none',
+                  cursor: 'pointer',
+                }}
+              >
+                追加
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="action-grid">
           {employees.map(employee => (
