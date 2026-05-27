@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import './App.css';
+import './App.scss';
 import { categories, menuItems } from './data/menuData';
 import { calculateDrinkTimes, createOrderId } from './utils/helpers';
 import { QRScreen } from './screens/QRScreen';
