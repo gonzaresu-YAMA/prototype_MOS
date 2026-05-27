@@ -1,3 +1,7 @@
+// GitHub Pages のサブパス配信に対応するため public 画像は base を前置する
+// （dev では '/'、本番ビルドでは '/prototype_MOS/customer/'）
+const BASE = import.meta.env.BASE_URL;
+
 export const categories = [
   {
     id: 'yakitori',
@@ -40,7 +44,7 @@ export const menuItems = {
       name: 'ねぎま串',
       price: 320,
       status: '販売中',
-      image: '/menu_pictures/negima.jpg',
+      image: BASE + 'menu_pictures/negima.jpg',
       description: '香ばしい鶏肉とねぎの定番串',
     },
     {
@@ -48,7 +52,7 @@ export const menuItems = {
       name: 'つくね串',
       price: 360,
       status: '販売中',
-      image: '/menu_pictures/tukune.jpg',
+      image: BASE + 'menu_pictures/tukune.jpg',
       description: 'ふっくら食感でたれがよく絡む人気串',
     },
     {
@@ -56,7 +60,7 @@ export const menuItems = {
       name: '皮串',
       price: 280,
       status: '販売中',
-      image: '/menu_pictures/kawa.jpg',
+      image: BASE + 'menu_pictures/kawa.jpg',
       description: '外は香ばしく中はジューシー',
     },
   ],
@@ -66,7 +70,7 @@ export const menuItems = {
       name: '生ビール',
       price: 580,
       status: '販売中',
-      image: '/menu_pictures/beer.jpg',
+      image: BASE + 'menu_pictures/beer.jpg',
       description: 'キレのある定番ビール',
     },
     {
@@ -74,7 +78,7 @@ export const menuItems = {
       name: 'ハイボール',
       price: 520,
       status: '販売中',
-      image: '/menu_pictures/highball.jpg',
+      image: BASE + 'menu_pictures/highball.jpg',
       description: 'すっきり飲みやすい一杯',
     },
     {
@@ -82,7 +86,7 @@ export const menuItems = {
       name: '烏龍茶',
       price: 280,
       status: '販売中',
-      image: '/menu_pictures/oolong_tea.jpg',
+      image: BASE + 'menu_pictures/oolong_tea.jpg',
       description: '食事に合わせやすいノンアル',
     },
   ],

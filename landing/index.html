@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>みどり亭 プロトタイプ展示</title>
+    <style>
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        font-family: 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', system-ui, sans-serif;
+        color: #f4f7f5;
+        background:
+          radial-gradient(circle at top left, rgba(47, 125, 84, 0.4), transparent 40%),
+          radial-gradient(circle at bottom right, rgba(199, 125, 26, 0.28), transparent 38%),
+          linear-gradient(160deg, #14241b 0%, #15402b 50%, #102016 100%);
+      }
+      .wrap { width: min(100%, 760px); text-align: center; }
+      .brand {
+        display: inline-flex; align-items: center; gap: 12px; margin-bottom: 8px;
+      }
+      .brand-mark {
+        width: 48px; height: 48px; display: grid; place-items: center;
+        border-radius: 14px; background: rgba(255, 255, 255, 0.14);
+        font-size: 24px; font-weight: 700;
+      }
+      h1 { margin: 16px 0 6px; font-size: 30px; }
+      .sub { margin: 0 0 36px; color: rgba(244, 247, 245, 0.7); font-size: 15px; }
+      .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+      @media (max-width: 600px) { .cards { grid-template-columns: 1fr; } }
+      a.card {
+        display: block; text-decoration: none; color: inherit; text-align: left;
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 18px; padding: 26px;
+        transition: transform 0.15s, background 0.15s;
+      }
+      a.card:hover { transform: translateY(-4px); background: rgba(255, 255, 255, 0.12); }
+      .icon { font-size: 36px; }
+      .card h2 { margin: 14px 0 6px; font-size: 20px; }
+      .card p { margin: 0; color: rgba(244, 247, 245, 0.72); font-size: 14px; line-height: 1.7; }
+      .go { display: inline-block; margin-top: 16px; font-weight: 700; color: #9fe0b8; }
+      footer { margin-top: 36px; font-size: 12px; color: rgba(244, 247, 245, 0.45); }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="brand">
+        <span class="brand-mark">緑</span>
+        <span style="font-size: 18px; letter-spacing: 0.1em;">MIDORI-TEI</span>
+      </div>
+      <h1>みどり亭 プロトタイプ展示</h1>
+      <p class="sub">ご覧になる画面を選んでください</p>
+
+      <div class="cards">
+        <a class="card" href="customer/">
+          <div class="icon">📱</div>
+          <h2>顧客側アプリ</h2>
+          <p>QR・メニュー注文・カート・会計までのお客様向け注文体験。</p>
+          <span class="go">開く →</span>
+        </a>
+        <a class="card" href="staff/">
+          <div class="icon">🧑‍🍳</div>
+          <h2>スタッフ管理</h2>
+          <p>従業員・座席・注文を一元管理する店舗スタッフ向けコンソール。</p>
+          <span class="go">開く →</span>
+        </a>
+      </div>
+
+      <footer>展示用プロトタイプ / データはブラウザ内のみ・再読込でリセット</footer>
+    </div>
+  </body>
+</html>
